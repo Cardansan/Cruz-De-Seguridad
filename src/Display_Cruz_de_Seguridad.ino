@@ -1,4 +1,12 @@
 //Programa para la Cruz de Seguridad
+//NOMENCLATURA: A lo largo de este programa se usan variables como mes o día, cada una referente
+//a secciones diferentes del display. La relación es la siguiente:
+//"días" - Se referirá al display de 4 dígitos que tiene 3 npx por segmento
+//"fecha" - Se referirá a los 229 neopixels que conforman las 31 posibles fechas del Mes
+//"mes" - Trata de los dos dígitos con dos neopixels por segmento del inferior del display, arriba del año
+//"año" - Trata de los dos dígitos con dos neopixels por segmento del inferior del display, debajo del mes
+
+
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_NeoPixel.h>
@@ -7,6 +15,11 @@
 #define NUM_PIXELS 369
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRBW + NEO_KHZ800);
+
+const int numPixAnio = 28;
+const int numPixMes = 28;
+const int numPixDias = 84;
+const int numPixFechas = 229;
 
 int tecla;
 int serialCont=0;
@@ -26,12 +39,10 @@ String valColorAccidente= "0127";
 int coloranio, colormes, colordiaacc;
 */
 
-String valFecha= "0001";
-String valColor= "0127";
-String valDiaActual= "0001";
+String valFecha = "0001";
+String valColor = "0127";
+String valDiaActual = "0001";
 int nfecha, color, ndiaact;
-
-
 
 byte numbers[] = {
   B11101110,    // 0
@@ -44,18 +55,6 @@ byte numbers[] = {
   B10001100,    // 7
   B11111110,    // 8
   B10011110    // 9
-};
-byte letters[] = {
-  B10111110,    // A      55555
-  B11110010,    // B     6     4
-  B01110000,    // C     6     4
-  B11111000,    // D      33333
-  B01110110,    // E     2     0
-  B00110110,    // F     2     0
-  B11011110,    // G      11111
-  B10111010,    // H
-  B01100010,    // L
-  B00000000     //
 };
 //Cuántos segmentos ocupa cada número de día del mes
 int segmDia[]{2,5,5,4,5,6,3,7,6,8,4,7,7,6,7,8,5,9,8,11,7,10,10,9,10,11,8,12,11,11,7};
@@ -114,7 +113,8 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   uint16_t secondDigit = (h % 1000)/100;
   uint16_t thirdDigit = ((h%1000)%100)/ 10;
   uint16_t fourthDigit = ((h%1000)%100)%10;
-  int j = 0; //Para la posicion del neopixel.
+  //int j = numPixAnio + numPixMes + numPixFechas; //Para la posicion del neopixel.
+  int j = 0;
   int i = 0;
 
   //---------------------------------------- firstDigit
@@ -197,43 +197,10 @@ void displayNumMes(uint16_t h, uint32_t col)
 {
   uint16_t firstDigit = h / 1000;
   uint16_t secondDigit = (h % 1000)/100;
-  uint16_t thirdDigit = ((h%1000)%100)/ 10;
+  uint16_t thirdDigit = ((h%1000)%100)/ 10; //En el año y el mes sólo se muestran los últimos dos dígitos
   uint16_t fourthDigit = ((h%1000)%100)%10;
-  int j = 0;
+  int j = numPixAnio;
   int i = 0;
-
-  //---------------------------------------- firstDigit
-  for ( i = 0; i < 7; i++)
-  {
-    if ((numbers[firstDigit] & (1 << 7 - i)) && (firstDigit > 0))
-    {
-      strip.setPixelColor(j + (14 * 3), Wheel(col));
-      strip.setPixelColor(j+1 + (14 * 3), Wheel(col));
-    }
-    else
-    {
-      strip.setPixelColor(j + (14 * 3 ), 0,0,0,0);
-      strip.setPixelColor(j+1 + (14 * 3 + 2), 0,0,0,0);
-    }
-    j=j+2;
-  }
-
-  // ---------------------------------------- secondDigit
-  j=0;
-  for (i = 0; i < 7; i++)
-  {
-    if ((numbers[secondDigit] & (1 << 7 - i)) && ((secondDigit >= 1) || (firstDigit > 0)))
-    {
-      strip.setPixelColor(j + (14*2),Wheel(col));
-      strip.setPixelColor(j+1 + (14*2),Wheel(col));
-    }
-    else
-    {
-      strip.setPixelColor(j + (14*2), 0,0,0,0);
-      strip.setPixelColor(j+1 + (14*2), 0,0,0,0);
-    }
-    j=j+2;
-  }
    //-------------------------------------------- thirdDigit
    j=0;
   for (i = 0; i < 7; i++)
@@ -251,7 +218,7 @@ void displayNumMes(uint16_t h, uint32_t col)
     j=j+2;
   }
    // -------------------------------------------- fourthDigit
-   j=0;
+   j=numPixAnio;
   for (i = 0; i < 7; i++)
   {
     if (numbers[fourthDigit] & (1 << 7 - i))
@@ -273,43 +240,11 @@ void displayNumAnio(uint16_t h, uint32_t col)
 {
   uint16_t firstDigit = h / 1000;
   uint16_t secondDigit = (h % 1000)/100;
-  uint16_t thirdDigit = ((h%1000)%100)/ 10;
+  uint16_t thirdDigit = ((h%1000)%100)/ 10; //En el año y el mes sólo se muestran los últimos dos dígitos
   uint16_t fourthDigit = ((h%1000)%100)%10;
   int j = 0;
   int i = 0;
 
-  //---------------------------------------- firstDigit
-  for ( i = 0; i < 7; i++)
-  {
-    if ((numbers[firstDigit] & (1 << 7 - i)) && (firstDigit > 0))
-    {
-      strip.setPixelColor(j + (14 * 3), Wheel(col));
-      strip.setPixelColor(j+1 + (14 * 3), Wheel(col));
-    }
-    else
-    {
-      strip.setPixelColor(j + (14 * 3 ), 0,0,0,0);
-      strip.setPixelColor(j+1 + (14 * 3 + 2), 0,0,0,0);
-    }
-    j=j+2;
-  }
-
-  // ---------------------------------------- secondDigit
-  j=0;
-  for (i = 0; i < 7; i++)
-  {
-    if ((numbers[secondDigit] & (1 << 7 - i)) && ((secondDigit >= 1) || (firstDigit > 0)))
-    {
-      strip.setPixelColor(j + (14*2),Wheel(col));
-      strip.setPixelColor(j+1 + (14*2),Wheel(col));
-    }
-    else
-    {
-      strip.setPixelColor(j + (14*2), 0,0,0,0);
-      strip.setPixelColor(j+1 + (14*2), 0,0,0,0);
-    }
-    j=j+2;
-  }
    //-------------------------------------------- thirdDigit
    j=0;
   for (i = 0; i < 7; i++)
