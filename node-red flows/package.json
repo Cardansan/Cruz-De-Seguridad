@@ -1,0 +1,16 @@
+{
+    "name": "CruzDeSeguridad",
+    "description": "Display Industria 4.0",
+    "version": "0.0.1",
+    "dependencies": {
+        "node-red-contrib-moment": "3.0.2",
+        "node-red-dashboard": "2.14.0",
+        "node-red-node-pi-neopixel": "0.0.24"
+    },
+    "node-red": {
+        "settings": {
+            "flowFile": "flow.json",
+            "credentialsFile": "flow_cred.json"
+        }
+    }
+}
