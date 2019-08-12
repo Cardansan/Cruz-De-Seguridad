@@ -7,14 +7,19 @@
 //"año" - Trata de los dos dígitos con dos neopixels por segmento del inferior del display, debajo del mes
 
 
-#include <Wire.h>
-#include <SPI.h>
+//#include <Wire.h>
+//#include <SPI.h>
+#include "Arduino.h"
 #include <Adafruit_NeoPixel.h>
 
-#define PIN A0
-#define NUM_PIXELS 369
+#define PIN A10
+#define PIN1 A11
+//#define NUM_PIXELS 369
+#define NUM_PIXELS 229  //cruz
+#define NUM_PIXELS1 84  //dias totales
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRBW + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUM_PIXELS1, PIN1, NEO_GRB + NEO_KHZ800);
 
 const int numPixAnio = 28;
 const int numPixMes = 28;
@@ -38,11 +43,11 @@ String valColorDiaSinAcc= "0127";
 String valColorAccidente= "0127";
 int coloranio, colormes, colordiaacc;
 */
-
+String dia = "0";
 String valFecha = "0001";
 String valColor = "0127";
 String valDiaActual = "0001";
-int nfecha, color, ndiaact;
+int nfecha, color, color1, ndiaact;
 
 byte numbers[] = {
   B11101110,    // 0
@@ -57,9 +62,9 @@ byte numbers[] = {
   B10011110    // 9
 };
 //Cuántos segmentos ocupa cada número de día del mes
-int segmDia[]{2,5,5,4,5,6,3,7,6,8,4,7,7,6,7,8,5,9,8,11,7,10,10,9,10,11,8,12,11,11,7};
+int segmDia[]{0,2,5,5,4,5,6,3,7,6,8,4,7,7,6,7,8,5,9,8,11,7,10,10,9,10,11,8,12,11,11,7};
 //Suma total de segmentos iluminados hasta el día actual
-int segmDiaTotal[]{2,7,12,16,21,27,30,37,43,51,55,62,69,75,82,90,95,104,112,123,130,140,150,159,169,180,188,200,211,222,229};
+int segmDiaTotal[]{0,2,7,12,16,21,27,30,37,43,51,55,62,69,75,82,90,95,104,112,123,130,140,150,159,169,180,188,200,211,222,229};
 
 //----------------------------------------------------- configuraciones
 void setup(){
@@ -68,6 +73,9 @@ void setup(){
   strip.begin();
   delay(100);
   strip.show();
+  strip1.begin();
+  delay(100);
+  strip1.show();
 
   Serial.println("Iniciado");
 }
@@ -75,9 +83,9 @@ void setup(){
 //--------------------------------------------------- loop
 void loop()
 {
-  if (Serial.available()>0)
+    if (Serial.available()>0)
   { //Para checar el puerto serial
-     serialCont++;
+     /*serialCont++;
      Serial.print("serialCont: "); Serial.println(serialCont);
      if(serialCont<4)
      {
@@ -101,7 +109,23 @@ void loop()
       {
        serialCont=0;//Reseteamos el contador
        strip.show();//Ahora sí mostramos todo al mismo tiempo
-      }
+     }*/
+     //Serial.println("Ingrese dias totales sin accidentes y color (0-4): "); valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
+     //valColor = Serial.readStringUntil(',');
+     //color1 = valColor.toInt();
+     //Serial.println(ndiaact);
+     //displayNumDiasSinAcc(ndiaact,color1);
+
+     Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
+     dia = Serial.readStringUntil(','); fechaAccidente = dia.toInt();
+
+     valColor = Serial.readStringUntil(',');
+     color = valColor.toInt();
+     Serial.println(fechaAccidente); //Serial.print(fechaAccidente);
+     Serial.println(color);
+
+     displayAccidente(fechaAccidente,color);
+     //ndiaact++;
   }
 }
 
@@ -114,7 +138,7 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   uint16_t thirdDigit = ((h%1000)%100)/ 10;
   uint16_t fourthDigit = ((h%1000)%100)%10;
   //int j = numPixAnio + numPixMes + numPixFechas; //Para la posicion del neopixel.
-  int j = 0;
+  int j = 0;  //Para la posicion del neopixel
   int i = 0;
 
   //---------------------------------------- firstDigit
@@ -122,15 +146,15 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if ((numbers[firstDigit] & (1 << 7 - i)) && (firstDigit > 0)) // Que sea diferente de cero
     { //Revisa el byte específico del vector y decide si debe encenderlo de algún color o apagarlo
-      strip.setPixelColor(j + (21 * 3), Wheel(col)); //Le asigna el color o...
-      strip.setPixelColor(j+1 + (21 * 3), Wheel(col));
-      strip.setPixelColor(j+2 + (21 * 3), Wheel(col));
+      strip1.setPixelColor(j + (21 * 3), Wheel(col)); //Le asigna el color o...
+      strip1.setPixelColor(j+1 + (21 * 3), Wheel(col));
+      strip1.setPixelColor(j+2 + (21 * 3), Wheel(col));
     }
     else
     {
-      strip.setPixelColor(j + (21 * 3 ), 0,0,0,0); //...lo apaga
-      strip.setPixelColor(j+1 + (21 * 3 + 2), 0,0,0,0);
-      strip.setPixelColor(j+2 + (21 * 3 + 2), 0,0,0,0);
+      strip1.setPixelColor(j + (21 * 3 ), 0,0,0,0); //...lo apaga
+      strip1.setPixelColor(j+1 + (21 * 3 + 2), 0,0,0);
+      strip1.setPixelColor(j+2 + (21 * 3 + 2), 0,0,0);
     }
     j=j+3; //Posicion del Neopixel
   }
@@ -141,15 +165,15 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if ((numbers[secondDigit] & (1 << 7 - i)) && ((secondDigit >= 1) || (firstDigit > 0))) //el cero no se muestra
     {
-      strip.setPixelColor(j + (21*2),Wheel(col));
-      strip.setPixelColor(j+1 + (21*2),Wheel(col));
-      strip.setPixelColor(j+2 + (21*2),Wheel(col));
+      strip1.setPixelColor(j + (21*2),Wheel(col));
+      strip1.setPixelColor(j+1 + (21*2),Wheel(col));
+      strip1.setPixelColor(j+2 + (21*2),Wheel(col));
     }
     else
     {
-      strip.setPixelColor(j + (21*2), 0,0,0,0);
-      strip.setPixelColor(j+1 + (21*2), 0,0,0,0);
-      strip.setPixelColor(j+2 + (21*2), 0,0,0,0);
+      strip1.setPixelColor(j + (21*2), 0,0,0);
+      strip1.setPixelColor(j+1 + (21*2), 0,0,0);
+      strip1.setPixelColor(j+2 + (21*2), 0,0,0);
     }
     j=j+3;
   }
@@ -159,15 +183,15 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if ((numbers[thirdDigit] & (1 << 7 - i)) && ((thirdDigit >= 1) || (secondDigit > 0) || (firstDigit > 0))) //el cero no se muestra
     {
-      strip.setPixelColor(j + 21, Wheel(col));
-      strip.setPixelColor(j+1 + 21,Wheel(col));
-      strip.setPixelColor(j+2 + 21,Wheel(col));
+      strip1.setPixelColor(j + 21, Wheel(col));
+      strip1.setPixelColor(j+1 + 21,Wheel(col));
+      strip1.setPixelColor(j+2 + 21,Wheel(col));
     }
     else
     {
-      strip.setPixelColor(j + 21, 0,0,0,0);
-      strip.setPixelColor(j+1 + 21, 0,0,0,0);
-      strip.setPixelColor(j+2 + 21, 0,0,0,0);
+      strip1.setPixelColor(j + 21, 0,0,0);
+      strip1.setPixelColor(j+1 + 21, 0,0,0);
+      strip1.setPixelColor(j+2 + 21, 0,0,0);
     }
     j=j+3;
   }
@@ -177,19 +201,19 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if (numbers[fourthDigit] & (1 << 7 - i))
     {
-      strip.setPixelColor(j ,Wheel(col));
-      strip.setPixelColor(j+1 , Wheel(col));
-      strip.setPixelColor(j+2 , Wheel(col));
+      strip1.setPixelColor(j ,Wheel(col));
+      strip1.setPixelColor(j+1 , Wheel(col));
+      strip1.setPixelColor(j+2 , Wheel(col));
     }
     else
     {
-      strip.setPixelColor(j , 0,0,0,0);
-      strip.setPixelColor(j+1 , 0,0,0,0);
-      strip.setPixelColor(j+2 , 0,0,0,0);
+      strip1.setPixelColor(j , 0,0,0);
+      strip1.setPixelColor(j+1 , 0,0,0);
+      strip1.setPixelColor(j+2 , 0,0,0);
     }
     j=j+3;
   }
-   //strip.show();
+   strip1.show();
 }
 
 //--------------------------------------------------- displayNumMes----------------------------------------------------
@@ -212,8 +236,8 @@ void displayNumMes(uint16_t h, uint32_t col)
     }
     else
     {
-      strip.setPixelColor(j + 14, 0,0,0,0);
-      strip.setPixelColor(j+1 + 14, 0,0,0,0);
+      strip.setPixelColor(j + 14, 0,0,0);
+      strip.setPixelColor(j+1 + 14, 0,0,0);
     }
     j=j+2;
   }
@@ -228,8 +252,8 @@ void displayNumMes(uint16_t h, uint32_t col)
     }
     else
     {
-      strip.setPixelColor(j , 0,0,0,0);
-      strip.setPixelColor(j+1 , 0,0,0,0);
+      strip.setPixelColor(j , 0,0,0);
+      strip.setPixelColor(j+1 , 0,0,0);
     }
     j=j+2;
   }
@@ -256,8 +280,8 @@ void displayNumAnio(uint16_t h, uint32_t col)
     }
     else
     {
-      strip.setPixelColor(j + 14, 0,0,0,0);
-      strip.setPixelColor(j+1 + 14, 0,0,0,0);
+      strip.setPixelColor(j + 14, 0,0,0);
+      strip.setPixelColor(j+1 + 14, 0,0,0);
     }
     j=j+2;
   }
@@ -272,8 +296,8 @@ void displayNumAnio(uint16_t h, uint32_t col)
     }
     else
     {
-      strip.setPixelColor(j , 0,0,0,0);
-      strip.setPixelColor(j+1 , 0,0,0,0);
+      strip.setPixelColor(j , 0,0,0);
+      strip.setPixelColor(j+1 , 0,0,0);
     }
     j=j+2;
   }
@@ -283,11 +307,18 @@ void displayNumAnio(uint16_t h, uint32_t col)
 void displayAccidente(uint16_t h, uint32_t col)
 {
    uint16_t i;
-   for( i =  0; i < strip.numPixels(); i++) //
+   /*for( i =  0; i < strip.numPixels(); i++) //
    {
      strip.setPixelColor(i,0,0,0,0);
+   }*/
+   int omitir = segmDiaTotal[h-1];  //Accede al arreglo segmDiaTotal una posicion anterior a la seleccionada para saber cuantos npx omitir
+   int mostrar = segmDia[h];        //Accede a este arreglo para saber el numero de leds a encender posteriormente en el ciclo for
+   for (uint16_t i=0; i<mostrar; i++)
+   {
+
+    strip.setPixelColor(i+omitir,Wheel(col));
    }
-   //strip.show();
+   strip.show();
 }
 //---------------------------------------------------------------------- apagaPixels
 void apagaPixels()
@@ -295,14 +326,38 @@ void apagaPixels()
     uint16_t i;
     for( i =  0; i < strip.numPixels(); i++) //
     {
-      strip.setPixelColor(i,0,0,0,0);
+      strip.setPixelColor(i,0,0,0);
     }  strip.show();
 }
 
 //---------------------------------- Input a value 0 to 255 to get a color value r - g - b - back to r + a number (0-255) for brightness!!
 uint32_t Wheel(byte WheelPos)
 {
-  if (WheelPos == 0)
+  switch (WheelPos)
+  {
+    case 0:
+      return strip.Color(0,255,0);  //Verde
+      break;
+    case 1:
+      return strip.Color(193,0,255); //Violeta, hay problemas para mostrar el color naranja con los npx
+      break;
+    case 2:
+      return strip.Color(0,0,255);  //Azul
+      break;
+    case 3:
+      return strip.Color(255,195,0);  //Amarillo
+      break;
+    case 4:
+      return strip.Color(255,0,0);  //Rojo
+      break;
+    case 8:
+      return strip.Color(0,0,0);  //Apaga un numero
+      break;
+    case 9:
+      apagaPixels();
+            break;
+  }
+  /*if (WheelPos == 0)
   { //Para el color blanco
     return strip.Color(0, 0, 0, 255);
   }
@@ -322,5 +377,5 @@ else {
     WheelPos -= 170;
     return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
   }
- }
+}*/
 }
