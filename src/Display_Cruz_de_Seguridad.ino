@@ -78,6 +78,7 @@ void setup(){
   strip1.show();
 
   Serial.println("Iniciado");
+                       //Probar npx de numero total
 }
 
 //--------------------------------------------------- loop
@@ -116,6 +117,9 @@ void loop()
      //Serial.println(ndiaact);
      //displayNumDiasSinAcc(ndiaact,color1);
 
+     //strip1.setPixelColor(strip.numPixels(), 0, 250, 0);
+
+
      Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
      dia = Serial.readStringUntil(','); fechaAccidente = dia.toInt();
 
@@ -127,7 +131,13 @@ void loop()
      displayAccidente(fechaAccidente,color);
      //ndiaact++;
   }
+  for(int i =  0; i < 84; i++) //
+  {
+    strip1.setPixelColor(i,0,255,0);
+  }
+  strip1.show();
 }
+
 
 
 //--------------------------------------------------- displayNumDiasSinAcc---------------------------------------------------------------
@@ -316,7 +326,7 @@ void displayAccidente(uint16_t h, uint32_t col)
    for (uint16_t i=0; i<mostrar; i++)
    {
 
-    strip.setPixelColor(i+omitir,Wheel(col));
+    strip.setPixelColor(i+omitir, NivelAccidente(col));
    }
    strip.show();
 }
@@ -330,10 +340,9 @@ void apagaPixels()
     }  strip.show();
 }
 
-//---------------------------------- Input a value 0 to 255 to get a color value r - g - b - back to r + a number (0-255) for brightness!!
-uint32_t Wheel(byte WheelPos)
+uint32_t NivelAccidente(byte pos)
 {
-  switch (WheelPos)
+  switch (pos)
   {
     case 0:
       return strip.Color(0,255,0);  //Verde
@@ -356,8 +365,15 @@ uint32_t Wheel(byte WheelPos)
     case 9:
       apagaPixels();
             break;
-  }
-  /*if (WheelPos == 0)
+    }
+}
+
+//---------------------------------- Input a value 0 to 255 to get a color value r - g - b - back to r + a number (0-255) for brightness!!
+uint32_t Wheel(byte WheelPos)
+{
+
+
+  if (WheelPos == 0)
   { //Para el color blanco
     return strip.Color(0, 0, 0, 255);
   }
@@ -377,5 +393,5 @@ else {
     WheelPos -= 170;
     return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
   }
-}*/
+}
 }
