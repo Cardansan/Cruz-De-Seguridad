@@ -151,16 +151,16 @@ switch (tecla)
   delay(1000);
   Serial.println("Ingrese el mes a mostrar y color (0-255): ");
   valMes = Serial.readStringUntil(','); mes = valMes.toInt();
-  valColor = Serial.readStringUntil(','); color = valColor.toInt();
-  displayNumMes;
+  valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+  displayNumMes(mes,color1);
   break;
 
   case 'a':   //Año
   delay(1000);
   Serial.println("Ingrese el anio a mostrar y color (0-255): ");
   valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
-  valColor = Serial.readStringUntil(','); color = valColor.toInt();
-  displayNumAnio;
+  valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+  displayNumAnio(anio,color1);
   break;
 
   case 's':   //Shutdown
@@ -174,9 +174,9 @@ switch (tecla)
 }
   /*for(int i =  0; i < 84; i++) //
   {
-    strip1.setPixelColor(i,0,255,0);
+    strip2.setPixelColor(i,0,255,0);
   }
-  strip1.show();*/
+  strip2.show();*/
 }
 
 
@@ -274,7 +274,7 @@ void displayNumMes(uint16_t h, uint32_t col)
   uint16_t secondDigit = (h % 1000)/100;
   uint16_t thirdDigit = ((h%1000)%100)/ 10; //En el año y el mes sólo se muestran los últimos dos dígitos
   uint16_t fourthDigit = ((h%1000)%100)%10;
-  int j = numPixAnio;
+  int j = 0;//numPixAnio;
   int i = 0;
    //-------------------------------------------- thirdDigit
    j=0;
@@ -293,7 +293,7 @@ void displayNumMes(uint16_t h, uint32_t col)
     j=j+2;
   }
    // -------------------------------------------- fourthDigit
-   j=numPixAnio;
+   j=0;
   for (i = 0; i < 7; i++)
   {
     if (numbers[fourthDigit] & (1 << 7 - i))
@@ -308,7 +308,7 @@ void displayNumMes(uint16_t h, uint32_t col)
     }
     j=j+2;
   }
-   //strip.show();
+   strip2.show();
 }
 //--------------------------------------------------- displayNumAnio----------------------------------------------------
 void displayNumAnio(uint16_t h, uint32_t col)
@@ -352,7 +352,7 @@ void displayNumAnio(uint16_t h, uint32_t col)
     }
     j=j+2;
   }
-   //strip.show();
+   strip3.show();
 }
 //--------------------------------------------------- displayNumFecha--------------------------------------------------------------
 void displayAccidente(uint16_t h, uint32_t col)
