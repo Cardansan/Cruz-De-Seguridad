@@ -396,7 +396,7 @@ uint32_t NivelAccidente(byte pos)
       return strip.Color(0,255,0);  //Verde
       break;
     case 1:
-      return strip.Color(193,0,255); //Violeta, hay problemas para mostrar el color naranja con los npx
+      return strip.Color(77,38,0); //Violeta, hay problemas para mostrar el color naranja con los npx [naranja = ()]violeta = 193,0,255
       break;
     case 2:
       return strip.Color(0,0,255);  //Azul
