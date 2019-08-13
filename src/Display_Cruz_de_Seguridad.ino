@@ -14,19 +14,24 @@
 
 #define PIN A10
 #define PIN1 A11
+#define PIN2 A12
+#define PIN3 A13
 //#define NUM_PIXELS 369
 #define NUM_PIXELS 229  //cruz
 #define NUM_PIXELS1 84  //dias totales
+#define NUM_PIXELS2 28 //Mes
+#define NUM_PIXELS3 28 //año
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUM_PIXELS1, PIN1, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(NUM_PIXELS2, PIN2, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(NUM_PIXELS3, PIN3, NEO_GRB + NEO_KHZ800);
 
 const int numPixAnio = 28;
 const int numPixMes = 28;
 const int numPixDias = 84;
 const int numPixFechas = 229;
 
-int tecla;
 int serialCont=0;
 int fechaAccidente;
 
@@ -47,7 +52,9 @@ String dia = "0";
 String valFecha = "0001";
 String valColor = "0127";
 String valDiaActual = "0001";
-int nfecha, color, color1, ndiaact;
+String valMes = "00";
+String valAnio = "00";
+int nfecha, color, color1, ndiaact, tecla, mes, anio;
 
 byte numbers[] = {
   B11101110,    // 0
@@ -76,9 +83,15 @@ void setup(){
   strip1.begin();
   delay(100);
   strip1.show();
+  strip2.begin();
+  delay(100);
+  strip2.show();
+  strip3.begin();
+  delay(100);
+  strip3.show();
+
 
   Serial.println("Iniciado");
-                       //Probar npx de numero total
 }
 
 //--------------------------------------------------- loop
@@ -111,26 +124,54 @@ void loop()
        serialCont=0;//Reseteamos el contador
        strip.show();//Ahora sí mostramos todo al mismo tiempo
      }*/
-     Serial.println("Ingrese dias totales sin accidentes y color (0-4): "); valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
-     valColor = Serial.readStringUntil(',');
-     color1 = valColor.toInt();
-     Serial.println(ndiaact);
-     displayNumDiasSinAcc(ndiaact,color1);
+     //Serial.println("Ingrese (f)echa, (t)otal, (m)es, (a)nio o (s)hutdown");
+tecla = Serial.read();  //Lee el primer caracter de la cadena
+switch (tecla)
+{
+  case 'f':   //Fecha
+  delay(1000);
+  Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
+  dia = Serial.readStringUntil(','); fechaAccidente = dia.toInt();
+  valColor = Serial.readStringUntil(','); color = valColor.toInt();
+  //Serial.println(fechaAccidente); //Serial.print(fechaAccidente);
+  //Serial.println(color);
+  displayAccidente(fechaAccidente,color);
+  break;
+
+  case 't':   //Total
+  delay(1000);
+  Serial.println("Ingrese dias totales sin accidentes y color (0-255): ");
+  valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
+  valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+  //Serial.println(ndiaact);
+  displayNumDiasSinAcc(ndiaact,color1);
+  break;
+
+  case 'm':   //Mes
+  delay(1000);
+  Serial.println("Ingrese el mes a mostrar y color (0-255): ");
+  valMes = Serial.readStringUntil(','); mes = valMes.toInt();
+  valColor = Serial.readStringUntil(','); color = valColor.toInt();
+  displayNumMes;
+  break;
+
+  case 'a':   //Año
+  delay(1000);
+  Serial.println("Ingrese el anio a mostrar y color (0-255): ");
+  valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
+  valColor = Serial.readStringUntil(','); color = valColor.toInt();
+  displayNumAnio;
+  break;
+
+  case 's':   //Shutdown
+  delay(1000);
+  apagaPixels();
+  break;
+}
 
      //strip1.setPixelColor(strip.numPixels(), 0, 250, 0);
-
-
-     Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
-     dia = Serial.readStringUntil(','); fechaAccidente = dia.toInt();
-
-     valColor = Serial.readStringUntil(',');
-     color = valColor.toInt();
-     Serial.println(fechaAccidente); //Serial.print(fechaAccidente);
-     Serial.println(color);
-
-     displayAccidente(fechaAccidente,color);
      //ndiaact++;
-  }
+}
   /*for(int i =  0; i < 84; i++) //
   {
     strip1.setPixelColor(i,0,255,0);
@@ -241,13 +282,13 @@ void displayNumMes(uint16_t h, uint32_t col)
   {
     if ((numbers[thirdDigit] & (1 << 7 - i)) && ((thirdDigit >= 1) || (secondDigit > 0) || (firstDigit > 0)))
     {
-      strip.setPixelColor(j + 14, Wheel(col));
-      strip.setPixelColor(j+1 + 14,Wheel(col));
+      strip2.setPixelColor(j + 14, Wheel(col));
+      strip2.setPixelColor(j+1 + 14,Wheel(col));
     }
     else
     {
-      strip.setPixelColor(j + 14, 0,0,0);
-      strip.setPixelColor(j+1 + 14, 0,0,0);
+      strip2.setPixelColor(j + 14, 0,0,0);
+      strip2.setPixelColor(j+1 + 14, 0,0,0);
     }
     j=j+2;
   }
@@ -257,13 +298,13 @@ void displayNumMes(uint16_t h, uint32_t col)
   {
     if (numbers[fourthDigit] & (1 << 7 - i))
     {
-      strip.setPixelColor(j ,Wheel(col));
-      strip.setPixelColor(j+1 , Wheel(col));
+      strip2.setPixelColor(j ,Wheel(col));
+      strip2.setPixelColor(j+1 , Wheel(col));
     }
     else
     {
-      strip.setPixelColor(j , 0,0,0);
-      strip.setPixelColor(j+1 , 0,0,0);
+      strip2.setPixelColor(j , 0,0,0);
+      strip2.setPixelColor(j+1 , 0,0,0);
     }
     j=j+2;
   }
@@ -285,13 +326,13 @@ void displayNumAnio(uint16_t h, uint32_t col)
   {
     if ((numbers[thirdDigit] & (1 << 7 - i)) && ((thirdDigit >= 1) || (secondDigit > 0) || (firstDigit > 0)))
     {
-      strip.setPixelColor(j + 14, Wheel(col));
-      strip.setPixelColor(j+1 + 14,Wheel(col));
+      strip3.setPixelColor(j + 14, Wheel(col));
+      strip3.setPixelColor(j+1 + 14,Wheel(col));
     }
     else
     {
-      strip.setPixelColor(j + 14, 0,0,0);
-      strip.setPixelColor(j+1 + 14, 0,0,0);
+      strip3.setPixelColor(j + 14, 0,0,0);
+      strip3.setPixelColor(j+1 + 14, 0,0,0);
     }
     j=j+2;
   }
@@ -301,13 +342,13 @@ void displayNumAnio(uint16_t h, uint32_t col)
   {
     if (numbers[fourthDigit] & (1 << 7 - i))
     {
-      strip.setPixelColor(j ,Wheel(col));
-      strip.setPixelColor(j+1 , Wheel(col));
+      strip3.setPixelColor(j ,Wheel(col));
+      strip3.setPixelColor(j+1 , Wheel(col));
     }
     else
     {
-      strip.setPixelColor(j , 0,0,0);
-      strip.setPixelColor(j+1 , 0,0,0);
+      strip3.setPixelColor(j , 0,0,0);
+      strip3.setPixelColor(j+1 , 0,0,0);
     }
     j=j+2;
   }
@@ -337,7 +378,14 @@ void apagaPixels()
     for( i =  0; i < strip.numPixels(); i++) //
     {
       strip.setPixelColor(i,0,0,0);
-    }  strip.show();
+      strip1.setPixelColor(i,0,0,0);
+      strip2.setPixelColor(i,0,0,0);
+      strip3.setPixelColor(i,0,0,0);
+    }
+    strip.show();
+    strip1.show();
+    strip2.show();
+    strip3.show();
 }
 
 uint32_t NivelAccidente(byte pos)
