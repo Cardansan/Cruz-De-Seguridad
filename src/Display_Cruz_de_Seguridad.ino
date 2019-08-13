@@ -111,11 +111,11 @@ void loop()
        serialCont=0;//Reseteamos el contador
        strip.show();//Ahora sí mostramos todo al mismo tiempo
      }*/
-     //Serial.println("Ingrese dias totales sin accidentes y color (0-4): "); valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
-     //valColor = Serial.readStringUntil(',');
-     //color1 = valColor.toInt();
-     //Serial.println(ndiaact);
-     //displayNumDiasSinAcc(ndiaact,color1);
+     Serial.println("Ingrese dias totales sin accidentes y color (0-4): "); valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
+     valColor = Serial.readStringUntil(',');
+     color1 = valColor.toInt();
+     Serial.println(ndiaact);
+     displayNumDiasSinAcc(ndiaact,color1);
 
      //strip1.setPixelColor(strip.numPixels(), 0, 250, 0);
 
@@ -131,11 +131,11 @@ void loop()
      displayAccidente(fechaAccidente,color);
      //ndiaact++;
   }
-  for(int i =  0; i < 84; i++) //
+  /*for(int i =  0; i < 84; i++) //
   {
     strip1.setPixelColor(i,0,255,0);
   }
-  strip1.show();
+  strip1.show();*/
 }
 
 
