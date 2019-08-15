@@ -55,6 +55,7 @@ String valDiaActual = "0001";
 String valMes = "00";
 String valAnio = "00";
 int nfecha, color, color1, ndiaact, tecla, mes, anio;
+int newmostrar, newOmitir;
 
 byte numbers[] = {
   B11101110,    // 0
@@ -72,6 +73,7 @@ byte numbers[] = {
 int segmDia[]{0,2,5,5,4,5,6,3,7,6,8,4,7,7,6,7,8,5,9,8,11,7,10,10,9,10,11,8,12,11,11,7};
 //Suma total de segmentos iluminados hasta el día actual
 int segmDiaTotal[]{0,2,7,12,16,21,27,30,37,43,51,55,62,69,75,82,90,95,104,112,123,130,140,150,159,169,180,188,200,211,222,229};
+int newsegmDia[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 //----------------------------------------------------- configuraciones
 void setup(){
@@ -360,10 +362,22 @@ void displayAccidente(uint16_t h, uint32_t col)
    uint16_t i;
    int omitir = segmDiaTotal[h-1];  //Accede al arreglo segmDiaTotal una posicion anterior a la seleccionada para saber cuantos npx omitir
    int mostrar = segmDia[h];        //Accede a este arreglo para saber el numero de leds a encender posteriormente en el ciclo for
-   for (uint16_t i=0; i<mostrar; i++)
+
+   newsegmDia[h] = mostrar;
+   for (int i=0; i<32; i++)
+   {
+     newOmitir = segmDiaTotal[i];
+     for (int j=1; j<32; j++)
+     {
+       newmostrar = newsegmDia[j];
+       strip.setPixelColor(newmostrar+newOmitir, NivelAccidente(col));
+     }
+   }
+
+   /*for (uint16_t i=0; i<mostrar; i++)
    {
     strip.setPixelColor(i+omitir, NivelAccidente(col));
-   }
+  }*/
    strip.show();
 }
 //---------------------------------------------------------------------- apagaPixels
