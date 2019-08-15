@@ -409,7 +409,7 @@ uint32_t NivelAccidente(byte pos)
       break;
     case 9:
       apagaPixels();
-            break;
+    break;
     }
 }
 
