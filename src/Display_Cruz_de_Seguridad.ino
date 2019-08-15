@@ -360,22 +360,17 @@ void displayNumAnio(uint16_t h, uint32_t col)
 void displayAccidente(uint16_t h, uint32_t col)
 {
    uint16_t i;
+   /*for( i =  0; i < strip.numPixels(); i++) //
+   {
+     strip.setPixelColor(i,0,0,0,0);
+   }*/
    int omitir = segmDiaTotal[h-1];  //Accede al arreglo segmDiaTotal una posicion anterior a la seleccionada para saber cuantos npx omitir
    int mostrar = segmDia[h];        //Accede a este arreglo para saber el numero de leds a encender posteriormente en el ciclo for
 
    newsegmDia[h] = mostrar;
    for (int i=0; i<32; i++)
    {
-     newOmitir = segmDiaTotal[i];
-     for (int j=1; j<32; j++)
-     {
-       newmostrar = newsegmDia[j];
-       strip.setPixelColor(newmostrar+newOmitir, NivelAccidente(col));
-     }
-   }
 
-   /*for (uint16_t i=0; i<mostrar; i++)
-   {
     strip.setPixelColor(i+omitir, NivelAccidente(col));
   }*/
    strip.show();
@@ -421,7 +416,7 @@ uint32_t NivelAccidente(byte pos)
       break;
     case 9:
       apagaPixels();
-    break;
+            break;
     }
 }
 
