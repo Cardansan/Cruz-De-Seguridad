@@ -77,7 +77,7 @@ int newsegmDia[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 //----------------------------------------------------- configuraciones
 void setup(){
-  Serial.begin(115200);
+  Serial.begin(115200);//115200
 
   strip.begin();
   delay(100);
@@ -93,7 +93,7 @@ void setup(){
   strip3.show();
 
 
-  Serial.println("Iniciado");
+  //Serial.println("Iniciado");
 }
 
 //--------------------------------------------------- loop
@@ -131,8 +131,8 @@ tecla = Serial.read();  //Lee el primer caracter de la cadena
 switch (tecla)
 {
   case 'f':   //Fecha
-  delay(1000);
-  Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
+  //delay(1000);
+  //Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
   dia = Serial.readStringUntil(','); fechaAccidente = dia.toInt();
   valColor = Serial.readStringUntil(','); color = valColor.toInt();
   //Serial.println(fechaAccidente); //Serial.print(fechaAccidente);
@@ -141,8 +141,8 @@ switch (tecla)
   break;
 
   case 't':   //Total
-  delay(1000);
-  Serial.println("Ingrese dias totales sin accidentes y color (0-255): ");
+  //delay(1000);
+  //Serial.println("Ingrese dias totales sin accidentes y color (0-255): ");
   valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
   valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
   //Serial.println(ndiaact);
@@ -150,23 +150,23 @@ switch (tecla)
   break;
 
   case 'm':   //Mes
-  delay(1000);
-  Serial.println("Ingrese el mes a mostrar y color (0-255): ");
+  //delay(1000);
+  //Serial.println("Ingrese el mes a mostrar y color (0-255): ");
   valMes = Serial.readStringUntil(','); mes = valMes.toInt();
   valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
   displayNumMes(mes,color1);
   break;
 
   case 'a':   //Año
-  delay(1000);
-  Serial.println("Ingrese el anio a mostrar y color (0-255): ");
+  //delay(1000);
+  //Serial.println("Ingrese el anio a mostrar y color (0-255): ");
   valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
   valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
   displayNumAnio(anio,color1);
   break;
 
   case 's':   //Shutdown
-  delay(1000);
+  //delay(1000);
   apagaPixels();
   break;
 }
@@ -399,7 +399,7 @@ uint32_t NivelAccidente(byte pos)
       return strip.Color(0,0,255);  //Azul
       break;
     case 3:
-      return strip.Color(255,195,0);  //Amarillo
+      return strip.Color(255,255,0);  //Amarillo255,195,0
       break;
     case 4:
       return strip.Color(255,0,0);  //Rojo
