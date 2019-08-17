@@ -12,10 +12,11 @@
 #include "Arduino.h"
 #include <Adafruit_NeoPixel.h>
 
-#define PIN A10
-#define PIN1 A11
-#define PIN2 A12
-#define PIN3 A13
+#define PIN A0
+#define PIN1 A1
+#define PIN2 A2
+#define PIN3 A3
+#define Brightness 255
 //#define NUM_PIXELS 369
 #define NUM_PIXELS 229  //cruz
 #define NUM_PIXELS1 84  //dias totales
@@ -78,7 +79,7 @@ int newsegmDia[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 //----------------------------------------------------- configuraciones
 void setup(){
   Serial.begin(115200);//115200
-
+  strip.setBrightness(Brightness);
   strip.begin();
   delay(100);
   strip.show();
@@ -420,7 +421,7 @@ uint32_t Wheel(byte WheelPos)
 
   if (WheelPos == 0)
   { //Para el color blanco
-    return strip.Color(0, 0, 0, 255);
+    return strip.Color(255, 255, 255);
   }
 else {
   WheelPos = 255 - WheelPos;
