@@ -11,11 +11,12 @@
 //#include <SPI.h>
 #include "Arduino.h"
 #include <Adafruit_NeoPixel.h>
+//#include <ESP8266WiFi.h>
 
-#define PIN A0
-#define PIN1 A1
-#define PIN2 A2
-#define PIN3 A3
+#define PIN D1
+#define PIN1 D2
+#define PIN2 D3
+#define PIN3 D4
 #define Brightness 255
 //#define NUM_PIXELS 369
 #define NUM_PIXELS 229  //cruz
@@ -78,7 +79,7 @@ int newsegmDia[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
 //----------------------------------------------------- configuraciones
 void setup(){
-  Serial.begin(115200);//115200
+  Serial.begin(115200);
   strip.setBrightness(Brightness);
   strip.begin();
   delay(100);
@@ -94,7 +95,7 @@ void setup(){
   strip3.show();
 
 
-  //Serial.println("Iniciado");
+  Serial.println("Iniciado");
 }
 
 //--------------------------------------------------- loop
