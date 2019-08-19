@@ -244,7 +244,7 @@ void setup(){
   strip3.begin();
   delay(100);
   strip3.show();
-/*
+
   //Serial.print("\nSetting up... ");
   setupWiFi();
   delay(1000);//wait for a second
@@ -268,7 +268,7 @@ void setup(){
   MDNS.addService("http", "tcp", 80);
   MDNS.addService("ws", "tcp", 81);
   webSocket.broadcastTXT("Display Seguridad Industria 4.0\n");
-*/
+
 
   Serial.println("Iniciado");
 }
@@ -276,12 +276,12 @@ void setup(){
 //--------------------------------------------------- loop
 void loop()
 {
-  //webSocket.loop();
-  //server.handleClient();
+  webSocket.loop();
+  server.handleClient();
   if (Serial.available()>0)
   { //Para checar el puerto serial
-    //char c[] = {(char)Serial.read()};
-    //webSocket.broadcastTXT(c, sizeof(c));
+    char c[] = {(char)Serial.read()};
+    webSocket.broadcastTXT(c, sizeof(c));
     tecla = Serial.read();  //Lee el primer caracter de la cadena
     switch (tecla)
     {
