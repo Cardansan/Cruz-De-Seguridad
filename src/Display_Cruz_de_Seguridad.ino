@@ -11,7 +11,10 @@
 //#include <SPI.h>
 #include "Arduino.h"
 #include <Adafruit_NeoPixel.h>
-//#include <ESP8266WiFi.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <WebSocketsServer.h>
+#include <ESP8266mDNS.h>
 
 #define PIN D1
 #define PIN1 D2
@@ -33,6 +36,12 @@ const int numPixAnio = 28;
 const int numPixMes = 28;
 const int numPixDias = 84;
 const int numPixFechas = 229;
+
+ESP8266WebServer server(80);
+WebSocketsServer webSocket = WebSocketsServer(81);
+
+const char WiFiAPPSK[] = "d1spl4y4.0";  //CONTRASEÑA
+const char ssid[] = "Display_de_Seguridad"; // NOMBRE DE LA RED
 
 int serialCont=0;
 int fechaAccidente;
@@ -77,6 +86,148 @@ int segmDia[]{0,2,5,5,4,5,6,3,7,6,8,4,7,7,6,7,8,5,9,8,11,7,10,10,9,10,11,8,12,11
 int segmDiaTotal[]{0,2,7,12,16,21,27,30,37,43,51,55,62,69,75,82,90,95,104,112,123,130,140,150,159,169,180,188,200,211,222,229};
 int newsegmDia[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
+//Socket.send('Connect ' + new Date());
+char webpage[] PROGMEM = R"=====(
+<html>
+<head>
+  <script>
+    var Socket;
+    function init()
+    {
+      Socket = new WebSocket('ws://' + window.location.hostname + ':81/',['arduino']);
+      Socket.onopen = function ()
+      {
+      }
+      Socket.onmessage = function(event)
+      {
+        document.getElementById("rxConsole").value += event.data;
+      }
+    }
+    function sendTextSSID()
+    {
+      Socket.send("SSID:"+document.getElementById("txSSID").value);
+      document.getElementById("txSSID").value = "";
+    }
+    function sendTextPswd()
+    {
+      Socket.send("PSWD:"+document.getElementById("txPswd").value);
+      document.getElementById("txPswd").value = "";
+    }
+    function sendTextNum1()
+    {
+      Socket.send("*"+document.getElementById("txNum1").value);
+      document.getElementById("txNum1").value = "";
+    }
+    function sendTextCol1()
+    {
+      Socket.send("+"+document.getElementById("txCol1").value);
+      document.getElementById("txCol1").value = "";
+    }
+    function sendTextNum2()
+    {
+      Socket.send("/"+document.getElementById("txNum2").value);
+      document.getElementById("txNum2").value = "";
+    }
+    function sendTextCol2()
+    {
+      Socket.send("-"+document.getElementById("txCol2").value);
+      document.getElementById("txCol2").value = "";
+    }
+    function sendTextNum3()
+    {
+      Socket.send("!"+document.getElementById("txNum3").value);
+      document.getElementById("txNum3").value = "";
+    }
+    function sendTextCol3()
+    {
+      Socket.send("?"+document.getElementById("txCol3").value);
+      document.getElementById("txCol3").value = "";
+    }
+    function sendTextNum4()
+    {
+      Socket.send("."+document.getElementById("txNum4").value);
+      document.getElementById("txNum4").value = "";
+    }
+    function sendTextCol4()
+    {
+      Socket.send("_"+document.getElementById("txCol4").value);
+      document.getElementById("txCol4").value = "";
+    }
+</script>
+</head>
+<body onload="javascript:init()">
+  <div>
+    <textarea id="rxConsole"></textarea>
+  </div>
+  <hr/>
+  <div>
+    <br/>SSID: <input type="text" id="txSSID" onkeydown="if(event.keyCode == 13) sendTextSSID();" />
+  </div>
+  <div>
+    <br/>PASSWORD:<input type="text" id="txPswd" onkeydown="if(event.keyCode == 13) sendTextPswd();" />
+  </div>
+  <div>
+    <br/>NUMERO 1: <input type="text" id="txNum1" onkeydown="if(event.keyCode == 13) sendTextNum1();" />
+  </div>
+  <div>
+    <br/>COLOR 1: <input type="text" id="txCol1" onkeydown="if(event.keyCode == 13) sendTextCol1();" />
+  </div>
+  <div>
+    <br/>NUMERO 2: <input type="text" id="txNum2" onkeydown="if(event.keyCode == 13) sendTextNum2();" />
+  </div>
+  <div>
+    <br/>COLOR 2: <input type="text" id="txCol2" onkeydown="if(event.keyCode == 13) sendTextCol2();" />
+  </div>
+  <div>
+    <br/>NUMERO 3: <input type="text" id="txNum3" onkeydown="if(event.keyCode == 13) sendTextNum3();" />
+  </div>
+  <div>
+    <br/>COLOR 3: <input type="text" id="txCol3" onkeydown="if(event.keyCode == 13) sendTextCol3();" />
+  </div>
+  <div>
+    <br/>NUMERO 4: <input type="text" id="txNum4" onkeydown="if(event.keyCode == 13) sendTextNum4();" />
+  </div>
+  <div>
+    <br/>COLOR 4: <input type="text" id="txCol4" onkeydown="if(event.keyCode == 13) sendTextCol4();" />
+  </div>
+  <hr/>
+</body>
+</html>
+)=====";
+
+//------------------------------------------------------------ setupWiFi
+void setupWiFi()
+{
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ssid, WiFiAPPSK);
+  Serial.print("\n &IP Address: ");
+  Serial.println(WiFi.softAPIP());
+}
+//-------------------------------------------------------------webSocketEvent
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
+{
+  switch(type)
+    {
+      case WStype_TEXT:
+        for(int i = 0; i < length; i++) Serial.print((char) payload[i]);
+        Serial.println("");
+      break;
+
+      case WStype_DISCONNECTED:
+            //Serial.printf("[%u] Disconnected\n", num);
+      break;
+
+
+     case WStype_CONNECTED: {
+            IPAddress ip = webSocket.remoteIP(num);
+            //Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+            // send message to client
+            webSocket.sendTXT(num, "Setup Iniciado\n");
+        }
+      break;
+    }
+}
+
 //----------------------------------------------------- configuraciones
 void setup(){
   Serial.begin(115200);
@@ -93,7 +244,31 @@ void setup(){
   strip3.begin();
   delay(100);
   strip3.show();
+/*
+  //Serial.print("\nSetting up... ");
+  setupWiFi();
+  delay(1000);//wait for a second
+  if(MDNS.begin("esp8266"))
+  {
+    //Serial.println("\nMDNS responder started");
+  }
 
+  // handle index
+  server.on("/", []()
+  {
+    // send index.html
+    server.send_P(200, "text/html", webpage);
+  });
+
+  server.begin();
+  webSocket.begin();
+  webSocket.onEvent(webSocketEvent);
+
+  // Add service to MDNS
+  MDNS.addService("http", "tcp", 80);
+  MDNS.addService("ws", "tcp", 81);
+  webSocket.broadcastTXT("Display Seguridad Industria 4.0\n");
+*/
 
   Serial.println("Iniciado");
 }
@@ -101,77 +276,55 @@ void setup(){
 //--------------------------------------------------- loop
 void loop()
 {
-    if (Serial.available()>0)
+  //webSocket.loop();
+  //server.handleClient();
+  if (Serial.available()>0)
   { //Para checar el puerto serial
-     /*serialCont++;
-     Serial.print("serialCont: "); Serial.println(serialCont);
-     if(serialCont<4)
-     {
-       valFecha = Serial.readStringUntil(',');// read the serial value
-       valColor = Serial.readStringUntil(',');
-       nfecha = valFecha.toInt();
-       color = valColor.toInt();
-       if(serialCont==1) {displayNumAnio(nfecha,color); Serial.print("Anio: "); Serial.println(nfecha);}//Sólo guardamos el número y color
-       else if(serialCont==2) {displayNumMes(nfecha,color); Serial.print("Mes: "); Serial.println(nfecha);}//Sólo guardamos el número y color
-       else if(serialCont==3) {displayNumDiasSinAcc(nfecha,color); Serial.print("Dias sin Accidentes: ");Serial.println(nfecha);}//Sólo guardamos el número y color
-     }
-     else if(serialCont==4) {valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();} //De aquí sólo guardamos el día actual
-     else if(serialCont>4 && serialCont<=35)//Todos los casos entre 4 y 35 (31 días)
-     {
-       valColor = Serial.readStringUntil(',');
-       color = valColor.toInt();
-       fechaAccidente = serialCont - 4; //Para referirnos a cada día
-       displayAccidente(fechaAccidente,color);
-     }
-     if(serialCont>=35) //Los 31 días más los 4 casos previos
-      {
-       serialCont=0;//Reseteamos el contador
-       strip.show();//Ahora sí mostramos todo al mismo tiempo
-     }*/
-     //Serial.println("Ingrese (f)echa, (t)otal, (m)es, (a)nio o (s)hutdown");
-tecla = Serial.read();  //Lee el primer caracter de la cadena
-switch (tecla)
-{
-  case 'f':   //Fecha
-  //delay(1000);
-  //Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
-  dia = Serial.readStringUntil(','); fechaAccidente = dia.toInt();
-  valColor = Serial.readStringUntil(','); color = valColor.toInt();
-  //Serial.println(fechaAccidente); //Serial.print(fechaAccidente);
-  //Serial.println(color);
-  displayAccidente(fechaAccidente,color);
-  break;
+    //char c[] = {(char)Serial.read()};
+    //webSocket.broadcastTXT(c, sizeof(c));
+    tecla = Serial.read();  //Lee el primer caracter de la cadena
+    switch (tecla)
+    {
+      case 'f':   //Fecha
+      //delay(1000);
+      //Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
+      dia = Serial.readStringUntil(','); fechaAccidente = dia.toInt();
+      valColor = Serial.readStringUntil(','); color = valColor.toInt();
+      //Serial.println(fechaAccidente); //Serial.print(fechaAccidente);
+      //Serial.println(color);
+      displayAccidente(fechaAccidente,color);
+      break;
 
-  case 't':   //Total
-  //delay(1000);
-  //Serial.println("Ingrese dias totales sin accidentes y color (0-255): ");
-  valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
-  valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
-  //Serial.println(ndiaact);
-  displayNumDiasSinAcc(ndiaact,color1);
-  break;
+      case 't':   //Total
+      //delay(1000);
+      //Serial.println("Ingrese dias totales sin accidentes y color (0-255): ");
+      valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
+      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+      //Serial.println(ndiaact);
+      displayNumDiasSinAcc(ndiaact,color1);
+      break;
 
-  case 'm':   //Mes
-  //delay(1000);
-  //Serial.println("Ingrese el mes a mostrar y color (0-255): ");
-  valMes = Serial.readStringUntil(','); mes = valMes.toInt();
-  valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
-  displayNumMes(mes,color1);
-  break;
+      case 'm':   //Mes
+      //delay(1000);
+      //Serial.println("Ingrese el mes a mostrar y color (0-255): ");
+      valMes = Serial.readStringUntil(','); mes = valMes.toInt();
+      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+      displayNumMes(mes,color1);
+      break;
 
-  case 'a':   //Año
-  //delay(1000);
-  //Serial.println("Ingrese el anio a mostrar y color (0-255): ");
-  valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
-  valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
-  displayNumAnio(anio,color1);
-  break;
+      case 'a':   //Año
+      //delay(1000);
+      //Serial.println("Ingrese el anio a mostrar y color (0-255): ");
+      valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
+      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+      displayNumAnio(anio,color1);
+      break;
 
-  case 's':   //Shutdown
-  //delay(1000);
-  apagaPixels();
-  break;
-}
+      case 's':   //Shutdown
+      //delay(1000);
+      apagaPixels();
+      break;
+  }
 
      //strip1.setPixelColor(strip.numPixels(), 0, 250, 0);
      //ndiaact++;
