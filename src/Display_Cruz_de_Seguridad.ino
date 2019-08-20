@@ -16,10 +16,10 @@
 #include <WebSocketsServer.h>
 #include <ESP8266mDNS.h>
 
-#define PIN D0
-#define PIN1 D1
-#define PIN2 D2
-#define PIN3 D3
+#define PIN D1
+#define PIN1 D2
+#define PIN2 D3
+#define PIN3 D4
 #define Brightness 255
 //#define NUM_PIXELS 369
 #define NUM_PIXELS 229  //cruz
@@ -41,7 +41,7 @@ ESP8266WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 
 const char WiFiAPPSK[] = "d1spl4y4.0";  //CONTRASEÑA
-const char ssid[] = "Display_de_Seguridad"; // NOMBRE DE LA RED
+const char ssid[] = "Cruz_de_Seguridad"; // NOMBRE DE LA RED
 
 int serialCont=0;
 int fechaAccidente;
@@ -120,7 +120,7 @@ char webpage[] PROGMEM = R"=====(
     }
     function sendTextNum1()
     {
-      Socket.send("f"+document.getElementById("txNum1").value);
+      Socket.send("*"+document.getElementById("txNum1").value);
       document.getElementById("txNum1").value = "";
     }
     function sendTextCol1()
@@ -130,7 +130,7 @@ char webpage[] PROGMEM = R"=====(
     }
     function sendTextNum2()
     {
-      Socket.send("t"+document.getElementById("txNum2").value);
+      Socket.send("/"+document.getElementById("txNum2").value);
       document.getElementById("txNum2").value = "";
     }
     function sendTextCol2()
@@ -140,7 +140,7 @@ char webpage[] PROGMEM = R"=====(
     }
     function sendTextNum3()
     {
-      Socket.send("m"+document.getElementById("txNum3").value);
+      Socket.send("!"+document.getElementById("txNum3").value);
       document.getElementById("txNum3").value = "";
     }
     function sendTextCol3()
@@ -150,7 +150,7 @@ char webpage[] PROGMEM = R"=====(
     }
     function sendTextNum4()
     {
-      Socket.send("a"+document.getElementById("txNum4").value);
+      Socket.send("."+document.getElementById("txNum4").value);
       document.getElementById("txNum4").value = "";
     }
     function sendTextCol4()
@@ -158,16 +158,12 @@ char webpage[] PROGMEM = R"=====(
       Socket.send("_"+document.getElementById("txCol4").value);
       document.getElementById("txCol4").value = "";
     }
-    function sendTextNum5()
+    function sendTextApagaLeds()
     {
-      Socket.send("s"+document.getElementById("txNum5").value);
-      document.getElementById("txNum5").value = "";
+      Socket.send("s"+document.getElementById("txApagaLeds").value);
+      document.getElementById("txApagaLeds").value = "";
     }
-    function sendTextCol5()
-    {
-      Socket.send("_"+document.getElementById("txCol5").value);
-      document.getElementById("txCol5").value = "";
-    }
+
 </script>
 </head>
 <body onload="javascript:init()">
@@ -209,11 +205,9 @@ char webpage[] PROGMEM = R"=====(
     <br/>COLOR 4: <input type="text" id="txCol4" onkeydown="if(event.keyCode == 13) sendTextCol4();" />
   </div>
   <div>
-    <br/>NUMERO 5: <input type="text" id="txNum5" onkeydown="if(event.keyCode == 13) sendTextNum5();" />
+    <br/>APAGA LEDs: <input type="text" id="txApagaLeds" onkeydown="if(event.keyCode == 13) sendTextApagaLeds();" />
   </div>
-  <div>
-    <br/>COLOR 5: <input type="text" id="txCol5" onkeydown="if(event.keyCode == 13) sendTextCol5();" />
-  </div>
+
   <hr/>
 </body>
 </html>
@@ -225,7 +219,7 @@ void setupWiFi()
   WiFi.mode(WIFI_AP);
   WiFi.softAP(ssid, WiFiAPPSK);
   Serial.print("\n &IP Address: ");
-  Serial.println(WiFi.softAPIP());
+  Serial.println(WiFi.softAPIP()); //WiFi.localIP()
 }
 //-------------------------------------------------------------webSocketEvent
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
