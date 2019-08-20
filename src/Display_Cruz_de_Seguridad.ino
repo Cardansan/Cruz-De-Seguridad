@@ -16,10 +16,10 @@
 #include <WebSocketsServer.h>
 #include <ESP8266mDNS.h>
 
-#define PIN D1
-#define PIN1 D2
-#define PIN2 D3
-#define PIN3 D4
+#define PIN D0
+#define PIN1 D1
+#define PIN2 D2
+#define PIN3 D3
 #define Brightness 255
 //#define NUM_PIXELS 369
 #define NUM_PIXELS 229  //cruz
@@ -84,7 +84,7 @@ byte numbers[] = {
 int segmDia[]{0,2,5,5,4,5,6,3,7,6,8,4,7,7,6,7,8,5,9,8,11,7,10,10,9,10,11,8,12,11,11,7};
 //Suma total de segmentos iluminados hasta el día actual
 int segmDiaTotal[]{0,2,7,12,16,21,27,30,37,43,51,55,62,69,75,82,90,95,104,112,123,130,140,150,159,169,180,188,200,211,222,229};
-int newsegmDia[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+//int newsegmDia[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 //Socket.send('Connect ' + new Date());
 char webpage[] PROGMEM = R"=====(
@@ -103,6 +103,11 @@ char webpage[] PROGMEM = R"=====(
         document.getElementById("rxConsole").value += event.data;
       }
     }
+    function sendTextIP()
+    {
+      Socket.send("IP:"+document.getElementById("txIP").value);
+      document.getElementById("txIP").value = "";
+    }
     function sendTextSSID()
     {
       Socket.send("SSID:"+document.getElementById("txSSID").value);
@@ -115,7 +120,7 @@ char webpage[] PROGMEM = R"=====(
     }
     function sendTextNum1()
     {
-      Socket.send("*"+document.getElementById("txNum1").value);
+      Socket.send("f"+document.getElementById("txNum1").value);
       document.getElementById("txNum1").value = "";
     }
     function sendTextCol1()
@@ -125,7 +130,7 @@ char webpage[] PROGMEM = R"=====(
     }
     function sendTextNum2()
     {
-      Socket.send("/"+document.getElementById("txNum2").value);
+      Socket.send("t"+document.getElementById("txNum2").value);
       document.getElementById("txNum2").value = "";
     }
     function sendTextCol2()
@@ -135,7 +140,7 @@ char webpage[] PROGMEM = R"=====(
     }
     function sendTextNum3()
     {
-      Socket.send("!"+document.getElementById("txNum3").value);
+      Socket.send("m"+document.getElementById("txNum3").value);
       document.getElementById("txNum3").value = "";
     }
     function sendTextCol3()
@@ -145,13 +150,23 @@ char webpage[] PROGMEM = R"=====(
     }
     function sendTextNum4()
     {
-      Socket.send("."+document.getElementById("txNum4").value);
+      Socket.send("a"+document.getElementById("txNum4").value);
       document.getElementById("txNum4").value = "";
     }
     function sendTextCol4()
     {
       Socket.send("_"+document.getElementById("txCol4").value);
       document.getElementById("txCol4").value = "";
+    }
+    function sendTextNum5()
+    {
+      Socket.send("s"+document.getElementById("txNum5").value);
+      document.getElementById("txNum5").value = "";
+    }
+    function sendTextCol5()
+    {
+      Socket.send("_"+document.getElementById("txCol5").value);
+      document.getElementById("txCol5").value = "";
     }
 </script>
 </head>
@@ -160,6 +175,9 @@ char webpage[] PROGMEM = R"=====(
     <textarea id="rxConsole"></textarea>
   </div>
   <hr/>
+  <div>
+    <br/> IP: <input type="text" id="txIP" onkeydown="if(event.keyCode == 13) sendTextIP();" />
+  </div>
   <div>
     <br/>SSID: <input type="text" id="txSSID" onkeydown="if(event.keyCode == 13) sendTextSSID();" />
   </div>
@@ -189,6 +207,12 @@ char webpage[] PROGMEM = R"=====(
   </div>
   <div>
     <br/>COLOR 4: <input type="text" id="txCol4" onkeydown="if(event.keyCode == 13) sendTextCol4();" />
+  </div>
+  <div>
+    <br/>NUMERO 5: <input type="text" id="txNum5" onkeydown="if(event.keyCode == 13) sendTextNum5();" />
+  </div>
+  <div>
+    <br/>COLOR 5: <input type="text" id="txCol5" onkeydown="if(event.keyCode == 13) sendTextCol5();" />
   </div>
   <hr/>
 </body>
@@ -267,7 +291,7 @@ void setup(){
   // Add service to MDNS
   MDNS.addService("http", "tcp", 80);
   MDNS.addService("ws", "tcp", 81);
-  webSocket.broadcastTXT("Display Seguridad Industria 4.0\n");
+  webSocket.broadcastTXT("Display Cruz de Seguridad Industria 4.0\n");
 
 
   Serial.println("Iniciado");
