@@ -16,10 +16,10 @@
 #include <WebSocketsServer.h>
 #include <ESP8266mDNS.h>
 
-#define PIN D1
-#define PIN1 D2
-#define PIN2 D3
-#define PIN3 D4
+#define PIN D1      // cruz
+#define PIN1 D2     // dias totales
+#define PIN2 D3     // mes
+#define PIN3 D4     // año
 #define Brightness 255
 //#define NUM_PIXELS 369
 #define NUM_PIXELS 229  //cruz
@@ -59,6 +59,8 @@ String valColorDiaSinAcc= "0127";
 String valColorAccidente= "0127";
 int coloranio, colormes, colordiaacc;
 */
+
+// La inicializacion de estas variables se debería guardar en memoria no volatil
 String dia = "0";
 String valFecha = "0001";
 String valColor = "0127";
@@ -216,11 +218,12 @@ char webpage[] PROGMEM = R"=====(
 //------------------------------------------------------------ setupWiFi
 void setupWiFi()
 {
-  WiFi.mode(WIFI_AP);
+  WiFi.mode(WIFI_AP);   // Recordar que el procesador puede generar ambas funciones al mismo tiempo
   WiFi.softAP(ssid, WiFiAPPSK);
   Serial.print("\n &IP Address: ");
   Serial.println(WiFi.softAPIP()); //WiFi.localIP()
 }
+
 //-------------------------------------------------------------webSocketEvent
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
 {
@@ -245,115 +248,6 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
       break;
     }
 }
-
-//----------------------------------------------------- configuraciones
-void setup(){
-  Serial.begin(115200);
-  strip.setBrightness(Brightness);
-  strip.begin();
-  delay(100);
-  strip.show();
-  strip1.begin();
-  delay(100);
-  strip1.show();
-  strip2.begin();
-  delay(100);
-  strip2.show();
-  strip3.begin();
-  delay(100);
-  strip3.show();
-
-  //Serial.print("\nSetting up... ");
-  setupWiFi();
-  delay(1000);//wait for a second
-  if(MDNS.begin("esp8266"))
-  {
-    //Serial.println("\nMDNS responder started");
-  }
-
-  // handle index
-  server.on("/", []()
-  {
-    // send index.html
-    server.send_P(200, "text/html", webpage);
-  });
-
-  server.begin();
-  webSocket.begin();
-  webSocket.onEvent(webSocketEvent);
-
-  // Add service to MDNS
-  MDNS.addService("http", "tcp", 80);
-  MDNS.addService("ws", "tcp", 81);
-  webSocket.broadcastTXT("Display Cruz de Seguridad Industria 4.0\n");
-
-
-  Serial.println("Iniciado");
-}
-
-//--------------------------------------------------- loop
-void loop()
-{
-  webSocket.loop();
-  server.handleClient();
-  if (Serial.available()>0)
-  { //Para checar el puerto serial
-    char c[] = {(char)Serial.read()};
-    webSocket.broadcastTXT(c, sizeof(c));
-    tecla = Serial.read();  //Lee el primer caracter de la cadena
-    switch (tecla)
-    {
-      case 'f':   //Fecha
-      //delay(1000);
-      //Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
-      dia = Serial.readStringUntil(','); fechaAccidente = dia.toInt();
-      valColor = Serial.readStringUntil(','); color = valColor.toInt();
-      //Serial.println(fechaAccidente); //Serial.print(fechaAccidente);
-      //Serial.println(color);
-      displayAccidente(fechaAccidente,color);
-      break;
-
-      case 't':   //Total
-      //delay(1000);
-      //Serial.println("Ingrese dias totales sin accidentes y color (0-255): ");
-      valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
-      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
-      //Serial.println(ndiaact);
-      displayNumDiasSinAcc(ndiaact,color1);
-      break;
-
-      case 'm':   //Mes
-      //delay(1000);
-      //Serial.println("Ingrese el mes a mostrar y color (0-255): ");
-      valMes = Serial.readStringUntil(','); mes = valMes.toInt();
-      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
-      displayNumMes(mes,color1);
-      break;
-
-      case 'a':   //Año
-      //delay(1000);
-      //Serial.println("Ingrese el anio a mostrar y color (0-255): ");
-      valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
-      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
-      displayNumAnio(anio,color1);
-      break;
-
-      case 's':   //Shutdown
-      //delay(1000);
-      apagaPixels();
-      break;
-  }
-
-     //strip1.setPixelColor(strip.numPixels(), 0, 250, 0);
-     //ndiaact++;
-}
-  /*for(int i =  0; i < 84; i++) //
-  {
-    strip2.setPixelColor(i,0,255,0);
-  }
-  strip2.show();*/
-}
-
 
 
 //--------------------------------------------------- displayNumDiasSinAcc---------------------------------------------------------------
@@ -612,4 +506,127 @@ else {
     return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
   }
 }
+}
+
+// ######################################################################################
+//----------------------------------------------------- configuraciones
+void setup()
+{
+  // Se inicializa el puerto serie
+  Serial.begin(115200);
+
+  // Se inician los neopixels
+  strip.setBrightness(Brightness);
+  strip.begin();
+  delay(100);
+  strip.show();
+
+
+  strip1.begin();
+  delay(100);
+  strip1.show();
+
+  strip2.begin();
+  delay(100);
+  strip2.show();
+
+  strip3.begin();
+  delay(100);
+  strip3.show();
+
+  //Serial.print("\nSetting up... ");
+  setupWiFi();
+  delay(1000);//wait for a second
+
+  if(MDNS.begin("esp8266"))  // MDNS permite "encontrar" al ESP por nombre e IP
+  {
+    //Serial.println("\nMDNS responder started");
+  }
+
+  // handle index
+  server.on("/", []()
+  {
+    // send index.html
+    server.send_P(200, "text/html", webpage);
+  });
+
+  server.begin();
+  webSocket.begin();
+  webSocket.onEvent(webSocketEvent);
+
+  // Add service to MDNS
+  MDNS.addService("http", "tcp", 80);
+  MDNS.addService("ws", "tcp", 81);
+  webSocket.broadcastTXT("Display Cruz de Seguridad Industria 4.0\n");
+
+
+  Serial.println("Iniciado");
+}
+
+//--------------------------------------------------- loop
+void loop()
+{
+  webSocket.loop();
+  server.handleClient();
+
+  if (Serial.available()>0)
+  { //Para checar el puerto serial
+    //char c[] = {(char)Serial.read()};  Para esperar datos por el puerto serie y enviar por websoket
+    //webSocket.broadcastTXT(c, sizeof(c));
+
+    tecla = Serial.read();  //Lee el primer caracter de la cadena
+    switch (tecla)
+    {
+      case 'f':   //Fecha
+      //delay(1000);
+      //Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
+      dia = Serial.readStringUntil(','); fechaAccidente = dia.toInt();
+      valColor = Serial.readStringUntil(','); color = valColor.toInt();
+      Serial.print("Dia: ");
+      Serial.print(fechaAccidente); 
+      Serial.print("\t");
+      Serial.print("Color: ");
+      Serial.println(color);
+      displayAccidente(fechaAccidente,color);
+      break;
+
+      case 't':   //Total
+      //delay(1000);
+      //Serial.println("Ingrese dias totales sin accidentes y color (0-255): ");
+      valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
+      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+      //Serial.println(ndiaact);
+      displayNumDiasSinAcc(ndiaact,color1);
+      break;
+
+      case 'm':   //Mes
+      //delay(1000);
+      //Serial.println("Ingrese el mes a mostrar y color (0-255): ");
+      valMes = Serial.readStringUntil(','); mes = valMes.toInt();
+      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+      displayNumMes(mes,color1);
+      break;
+
+      case 'a':   //Año
+      //delay(1000);
+      //Serial.println("Ingrese el anio a mostrar y color (0-255): ");
+      valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
+      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+      displayNumAnio(anio,color1);
+      break;
+
+      case 's':   //Shutdown
+      //delay(1000);
+      apagaPixels();
+      break;
+  }
+
+     //strip1.setPixelColor(strip.numPixels(), 0, 250, 0);
+     //ndiaact++;
+}
+  /*for(int i =  0; i < 84; i++) //
+  {
+    strip2.setPixelColor(i,0,255,0);
+  }
+  strip2.show();*/
 }
