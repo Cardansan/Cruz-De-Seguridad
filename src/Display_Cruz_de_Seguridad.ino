@@ -27,10 +27,10 @@
 #define NUM_PIXELS2 28 //Mes
 #define NUM_PIXELS3 28 //año
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUM_PIXELS1, PIN1, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(NUM_PIXELS2, PIN2, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(NUM_PIXELS3, PIN3, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ400);
+Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUM_PIXELS1, PIN1, NEO_GRB + NEO_KHZ400);
+Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(NUM_PIXELS2, PIN2, NEO_GRB + NEO_KHZ400);
+Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(NUM_PIXELS3, PIN3, NEO_GRB + NEO_KHZ400);
 
 const int numPixAnio = 28;
 const int numPixMes = 28;
@@ -215,7 +215,7 @@ char webpage[] PROGMEM = R"=====(
 </html>
 )=====";
 
-//------------------------------------------------------------ setupWiFi
+//------------------------------------------------------------------------------ setupWiFi
 void setupWiFi()
 {
   WiFi.mode(WIFI_AP);   // Recordar que el procesador puede generar ambas funciones al mismo tiempo
@@ -224,7 +224,7 @@ void setupWiFi()
   Serial.println(WiFi.softAPIP()); //WiFi.localIP()
 }
 
-//-------------------------------------------------------------webSocketEvent
+//-------------------------------------------------------------------------------webSocketEvent
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
 {
   switch(type)
@@ -250,7 +250,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 }
 
 
-//--------------------------------------------------- displayNumDiasSinAcc---------------------------------------------------------------
+//------------------------------------------------------------------------------displayNumDiasSinAcc
 void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mostrar, color para Wheel().
 {
   uint16_t firstDigit = h / 1000;
@@ -336,7 +336,7 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
    strip1.show();
 }
 
-//--------------------------------------------------- displayNumMes----------------------------------------------------
+//---------------------------------------------------------------------------- displayNumMes
 void displayNumMes(uint16_t h, uint32_t col)
 {
   uint16_t firstDigit = h / 1000;
@@ -379,7 +379,7 @@ void displayNumMes(uint16_t h, uint32_t col)
   }
    strip2.show();
 }
-//--------------------------------------------------- displayNumAnio----------------------------------------------------
+//------------------------------------------------------------------------------displayNumAnio
 void displayNumAnio(uint16_t h, uint32_t col)
 {
   uint16_t firstDigit = h / 1000;
@@ -423,7 +423,9 @@ void displayNumAnio(uint16_t h, uint32_t col)
   }
    strip3.show();
 }
-//--------------------------------------------------- displayNumFecha--------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------displayAccidente
 void displayAccidente(uint16_t h, uint32_t col)
 {
    uint16_t i;
@@ -433,8 +435,11 @@ void displayAccidente(uint16_t h, uint32_t col)
    {
     strip.setPixelColor(i+omitir, NivelAccidente(col));
    }
-   strip.show();
+    strip.show();
+
 }
+
+
 //---------------------------------------------------------------------- apagaPixels
 void apagaPixels()
 {
@@ -442,41 +447,51 @@ void apagaPixels()
     for( i =  0; i < strip.numPixels(); i++) //
     {
       strip.setPixelColor(i,0,0,0);
-      strip1.setPixelColor(i,0,0,0);
-      strip2.setPixelColor(i,0,0,0);
-      strip3.setPixelColor(i,0,0,0);
+      strip.show();
+      //strip1.setPixelColor(i,0,0,0);
+      //strip2.setPixelColor(i,0,0,0);
+      //strip3.setPixelColor(i,0,0,0);
+
+
+      //strip1.show();
+      //strip2.show();
+      //strip3.show();
+
+      delay(1);
     }
-    strip.show();
-    strip1.show();
-    strip2.show();
-    strip3.show();
+
 }
 
+
+//------------------------------------------------------------------------------NivelAccidente
+// Segun el nivel de accidente se cambia el color, el 0 defualt es verde, sin accidente
 uint32_t NivelAccidente(byte pos)
 {
   switch (pos)
   {
     case 0:
-      return strip.Color(0,255,0);  //Verde
+      return strip.Color(0,64,16);  //Verde, ¡¡ SI EL COLOR VERDE SE MANDA A 255 SE ATENUAN LOS AZULES !!
       break;
+
     case 1:
-      return strip.Color(77,38,0); //Violeta, hay problemas para mostrar el color naranja con los npx [naranja = ()]violeta = 193,0,255
+      return strip.Color(128,32,0); //Naranja, hay problemas para mostrar el color naranja con los npx [naranja = ()]violeta = 193,0,255
       break;
+
     case 2:
-      return strip.Color(0,100,255);  //Azul
+      return strip.Color(0,0,255);  //Azul
       break;
+
     case 3:
-      return strip.Color(255,255,0);  //Amarillo255,195,0
+      return strip.Color(64,64,0);//Amarillo255,195,0
       break;
+
     case 4:
-      return strip.Color(255,0,0);  //Rojo
+      return strip.Color(128,0,0);  //Rojo
       break;
-    case 8:
+
+    case 5:
       return strip.Color(0,0,0);  //Apaga un numero
       break;
-    case 9:
-      apagaPixels();
-    break;
     }
 }
 
@@ -519,7 +534,8 @@ void setup()
   strip.setBrightness(Brightness);
   strip.begin();
   delay(100);
-  strip.show();
+  apagaPixels();
+  //strip.show();
 
 
   strip1.begin();
@@ -580,14 +596,23 @@ void loop()
       case 'f':   //Fecha
       //delay(1000);
       //Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
-      dia = Serial.readStringUntil(','); fechaAccidente = dia.toInt();
-      valColor = Serial.readStringUntil(','); color = valColor.toInt();
-      Serial.print("Dia: ");
-      Serial.print(fechaAccidente); 
-      Serial.print("\t");
-      Serial.print("Color: ");
-      Serial.println(color);
-      displayAccidente(fechaAccidente,color);
+      dia = Serial.readStringUntil(',');
+      fechaAccidente = dia.toInt();
+      valColor = Serial.readStringUntil(',');
+      color = valColor.toInt();
+      if((color <= 5) && ((fechaAccidente > 0) && (fechaAccidente <= 31)))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
+      {
+        Serial.print("Dia: ");
+        Serial.print(fechaAccidente);
+        Serial.print("\t");
+        Serial.print("Color: ");
+        Serial.println(color);
+        displayAccidente(fechaAccidente,color);
+      }
+      else
+      {
+        Serial.println("Nivel o día de accidente incorrecto");
+      }
       break;
 
       case 't':   //Total
