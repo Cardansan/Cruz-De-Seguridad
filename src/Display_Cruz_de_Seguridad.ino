@@ -15,6 +15,7 @@
 #include <ESP8266WebServer.h>
 #include <WebSocketsServer.h>
 #include <ESP8266mDNS.h>
+#include <FS.h>
 
 #define PIN D1      // cruz
 #define PIN1 D2     // dias totales
@@ -39,6 +40,7 @@ const int numPixFechas = 229;
 
 ESP8266WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
+//File fsUploadFile;
 
 const char WiFiAPPSK[] = "d1spl4y4.0";  //CONTRASEÑA
 const char ssid[] = "Cruz_de_Seguridad"; // NOMBRE DE LA RED
@@ -46,19 +48,6 @@ const char ssid[] = "Cruz_de_Seguridad"; // NOMBRE DE LA RED
 int serialCont=0;
 int fechaAccidente;
 
-/*
- // Variables del puerto serial
-String valDiasSinAcc= "0001";
-String valMes= "0001";
-String valAnio= "0001";
-int ndiaacc, nmes, nanio, ndiaact;
-
-String valColorAnio= "0127";
-String valColorMes= "0127";
-String valColorDiaSinAcc= "0127";
-String valColorAccidente= "0127";
-int coloranio, colormes, colordiaacc;
-*/
 
 // La inicializacion de estas variables se debería guardar en memoria no volatil
 String dia = "0";
@@ -89,131 +78,16 @@ int segmDiaTotal[]{0,2,7,12,16,21,27,30,37,43,51,55,62,69,75,82,90,95,104,112,12
 //int newsegmDia[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 //Socket.send('Connect ' + new Date());
-char webpage[] PROGMEM = R"=====(
-<html>
-<head>
-  <script>
-    var Socket;
-    function init()
-    {
-      Socket = new WebSocket('ws://' + window.location.hostname + ':81/',['arduino']);
-      Socket.onopen = function ()
-      {
-      }
-      Socket.onmessage = function(event)
-      {
-        document.getElementById("rxConsole").value += event.data;
-      }
-    }
-    function sendTextIP()
-    {
-      Socket.send("IP:"+document.getElementById("txIP").value);
-      document.getElementById("txIP").value = "";
-    }
-    function sendTextSSID()
-    {
-      Socket.send("SSID:"+document.getElementById("txSSID").value);
-      document.getElementById("txSSID").value = "";
-    }
-    function sendTextPswd()
-    {
-      Socket.send("PSWD:"+document.getElementById("txPswd").value);
-      document.getElementById("txPswd").value = "";
-    }
-    function sendTextNum1()
-    {
-      Socket.send("*"+document.getElementById("txNum1").value);
-      document.getElementById("txNum1").value = "";
-    }
-    function sendTextCol1()
-    {
-      Socket.send("+"+document.getElementById("txCol1").value);
-      document.getElementById("txCol1").value = "";
-    }
-    function sendTextNum2()
-    {
-      Socket.send("/"+document.getElementById("txNum2").value);
-      document.getElementById("txNum2").value = "";
-    }
-    function sendTextCol2()
-    {
-      Socket.send("-"+document.getElementById("txCol2").value);
-      document.getElementById("txCol2").value = "";
-    }
-    function sendTextNum3()
-    {
-      Socket.send("!"+document.getElementById("txNum3").value);
-      document.getElementById("txNum3").value = "";
-    }
-    function sendTextCol3()
-    {
-      Socket.send("?"+document.getElementById("txCol3").value);
-      document.getElementById("txCol3").value = "";
-    }
-    function sendTextNum4()
-    {
-      Socket.send("."+document.getElementById("txNum4").value);
-      document.getElementById("txNum4").value = "";
-    }
-    function sendTextCol4()
-    {
-      Socket.send("_"+document.getElementById("txCol4").value);
-      document.getElementById("txCol4").value = "";
-    }
-    function sendTextApagaLeds()
-    {
-      Socket.send("s"+document.getElementById("txApagaLeds").value);
-      document.getElementById("txApagaLeds").value = "";
-    }
+//char webpage[] PROGMEM = R"=====()=====";
 
-</script>
-</head>
-<body onload="javascript:init()">
-  <div>
-    <textarea id="rxConsole"></textarea>
-  </div>
-  <hr/>
-  <div>
-    <br/> IP: <input type="text" id="txIP" onkeydown="if(event.keyCode == 13) sendTextIP();" />
-  </div>
-  <div>
-    <br/>SSID: <input type="text" id="txSSID" onkeydown="if(event.keyCode == 13) sendTextSSID();" />
-  </div>
-  <div>
-    <br/>PASSWORD:<input type="text" id="txPswd" onkeydown="if(event.keyCode == 13) sendTextPswd();" />
-  </div>
-  <div>
-    <br/>NUMERO 1: <input type="text" id="txNum1" onkeydown="if(event.keyCode == 13) sendTextNum1();" />
-  </div>
-  <div>
-    <br/>COLOR 1: <input type="text" id="txCol1" onkeydown="if(event.keyCode == 13) sendTextCol1();" />
-  </div>
-  <div>
-    <br/>NUMERO 2: <input type="text" id="txNum2" onkeydown="if(event.keyCode == 13) sendTextNum2();" />
-  </div>
-  <div>
-    <br/>COLOR 2: <input type="text" id="txCol2" onkeydown="if(event.keyCode == 13) sendTextCol2();" />
-  </div>
-  <div>
-    <br/>NUMERO 3: <input type="text" id="txNum3" onkeydown="if(event.keyCode == 13) sendTextNum3();" />
-  </div>
-  <div>
-    <br/>COLOR 3: <input type="text" id="txCol3" onkeydown="if(event.keyCode == 13) sendTextCol3();" />
-  </div>
-  <div>
-    <br/>NUMERO 4: <input type="text" id="txNum4" onkeydown="if(event.keyCode == 13) sendTextNum4();" />
-  </div>
-  <div>
-    <br/>COLOR 4: <input type="text" id="txCol4" onkeydown="if(event.keyCode == 13) sendTextCol4();" />
-  </div>
-  <div>
-    <br/>APAGA LEDs: <input type="text" id="txApagaLeds" onkeydown="if(event.keyCode == 13) sendTextApagaLeds();" />
-  </div>
+// --------------------------------------------------------------------------- handleIndexFile
+void handleIndexFile()
+{
+  File file = SPIFFS.open("/index.html","r");
+  server.streamFile(file, "text/html");
+  file.close();
+}
 
-  <hr/>
-</body>
-</html>
-)=====";
 
 //------------------------------------------------------------------------------ setupWiFi
 void setupWiFi()
@@ -235,13 +109,13 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
       break;
 
       case WStype_DISCONNECTED:
-            //Serial.printf("[%u] Disconnected\n", num);
+            Serial.printf("[%u] Disconnected\n", num);
       break;
 
 
      case WStype_CONNECTED: {
             IPAddress ip = webSocket.remoteIP(num);
-            //Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+            Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
             // send message to client
             webSocket.sendTXT(num, "Setup Iniciado\n");
         }
@@ -527,6 +401,10 @@ else {
 //----------------------------------------------------- configuraciones
 void setup()
 {
+  // Se inicializa SPIFFS
+  SPIFFS.begin();
+  delay(1000);
+
   // Se inicializa el puerto serie
   Serial.begin(115200);
 
@@ -550,21 +428,22 @@ void setup()
   delay(100);
   strip3.show();
 
-  //Serial.print("\nSetting up... ");
+  Serial.print("\nSetting up WiFi... ");
   setupWiFi();
   delay(1000);//wait for a second
 
   if(MDNS.begin("esp8266"))  // MDNS permite "encontrar" al ESP por nombre e IP
   {
-    //Serial.println("\nMDNS responder started");
+    Serial.println("\nMDNS responder started");
   }
 
   // handle index
-  server.on("/", []()
+  server.on("/",handleIndexFile);
+  /* server.on("/", []()
   {
     // send index.html
     server.send_P(200, "text/html", webpage);
-  });
+  });*/
 
   server.begin();
   webSocket.begin();
@@ -573,7 +452,7 @@ void setup()
   // Add service to MDNS
   MDNS.addService("http", "tcp", 80);
   MDNS.addService("ws", "tcp", 81);
-  webSocket.broadcastTXT("Display Cruz de Seguridad Industria 4.0\n");
+  //webSocket.broadcastTXT("Display Cruz de Seguridad Industria 4.0\n");
 
 
   Serial.println("Iniciado");
@@ -649,9 +528,5 @@ void loop()
      //strip1.setPixelColor(strip.numPixels(), 0, 250, 0);
      //ndiaact++;
 }
-  /*for(int i =  0; i < 84; i++) //
-  {
-    strip2.setPixelColor(i,0,255,0);
-  }
-  strip2.show();*/
+
 }

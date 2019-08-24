@@ -1,0 +1,123 @@
+<html>
+<head>
+  <script>
+    var Socket;
+    function init()
+    {
+      Socket = new WebSocket('ws://' + window.location.hostname + ':81/',['arduino']);
+      Socket.onopen = function ()
+      {
+      }
+      Socket.onmessage = function(event)
+      {
+        document.getElementById("rxConsole").value += event.data;
+      }
+    }
+    function sendTextIP()
+    {
+      Socket.send("IP:"+document.getElementById("txIP").value);
+      document.getElementById("txIP").value = "";
+    }
+    function sendTextSSID()
+    {
+      Socket.send("SSID:"+document.getElementById("txSSID").value);
+      document.getElementById("txSSID").value = "";
+    }
+    function sendTextPswd()
+    {
+      Socket.send("PSWD:"+document.getElementById("txPswd").value);
+      document.getElementById("txPswd").value = "";
+    }
+    function sendTextNum1()
+    {
+      Socket.send("*"+document.getElementById("txNum1").value);
+      document.getElementById("txNum1").value = "";
+    }
+    function sendTextCol1()
+    {
+      Socket.send("+"+document.getElementById("txCol1").value);
+      document.getElementById("txCol1").value = "";
+    }
+    function sendTextNum2()
+    {
+      Socket.send("/"+document.getElementById("txNum2").value);
+      document.getElementById("txNum2").value = "";
+    }
+    function sendTextCol2()
+    {
+      Socket.send("-"+document.getElementById("txCol2").value);
+      document.getElementById("txCol2").value = "";
+    }
+    function sendTextNum3()
+    {
+      Socket.send("!"+document.getElementById("txNum3").value);
+      document.getElementById("txNum3").value = "";
+    }
+    function sendTextCol3()
+    {
+      Socket.send("?"+document.getElementById("txCol3").value);
+      document.getElementById("txCol3").value = "";
+    }
+    function sendTextNum4()
+    {
+      Socket.send("."+document.getElementById("txNum4").value);
+      document.getElementById("txNum4").value = "";
+    }
+    function sendTextCol4()
+    {
+      Socket.send("_"+document.getElementById("txCol4").value);
+      document.getElementById("txCol4").value = "";
+    }
+    function sendTextApagaLeds()
+    {
+      Socket.send("s"+document.getElementById("txApagaLeds").value);
+      document.getElementById("txApagaLeds").value = "";
+    }
+
+</script>
+</head>
+<body onload="javascript:init()">
+  <div>
+    <textarea id="rxConsole"></textarea>
+  </div>
+  <hr/>
+  <div>
+    <br/> IP: <input type="text" id="txIP" onkeydown="if(event.keyCode == 13) sendTextIP();" />
+  </div>
+  <div>
+    <br/>SSID: <input type="text" id="txSSID" onkeydown="if(event.keyCode == 13) sendTextSSID();" />
+  </div>
+  <div>
+    <br/>PASSWORD:<input type="text" id="txPswd" onkeydown="if(event.keyCode == 13) sendTextPswd();" />
+  </div>
+  <div>
+    <br/>NUMERO 1: <input type="text" id="txNum1" onkeydown="if(event.keyCode == 13) sendTextNum1();" />
+  </div>
+  <div>
+    <br/>COLOR 1: <input type="text" id="txCol1" onkeydown="if(event.keyCode == 13) sendTextCol1();" />
+  </div>
+  <div>
+    <br/>NUMERO 2: <input type="text" id="txNum2" onkeydown="if(event.keyCode == 13) sendTextNum2();" />
+  </div>
+  <div>
+    <br/>COLOR 2: <input type="text" id="txCol2" onkeydown="if(event.keyCode == 13) sendTextCol2();" />
+  </div>
+  <div>
+    <br/>NUMERO 3: <input type="text" id="txNum3" onkeydown="if(event.keyCode == 13) sendTextNum3();" />
+  </div>
+  <div>
+    <br/>COLOR 3: <input type="text" id="txCol3" onkeydown="if(event.keyCode == 13) sendTextCol3();" />
+  </div>
+  <div>
+    <br/>NUMERO 4: <input type="text" id="txNum4" onkeydown="if(event.keyCode == 13) sendTextNum4();" />
+  </div>
+  <div>
+    <br/>COLOR 4: <input type="text" id="txCol4" onkeydown="if(event.keyCode == 13) sendTextCol4();" />
+  </div>
+  <div>
+    <br/>APAGA LEDs: <input type="text" id="txApagaLeds" onkeydown="if(event.keyCode == 13) sendTextApagaLeds();" />
+  </div>
+
+  <hr/>
+</body>
+</html>
