@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE eagle SYSTEM "eagle.dtd">
+<eagle version="9.4.2">
+<drawing>
+<settings>
+<setting alwaysvectorfont="no"/>
+<setting verticaltext="up"/>
+</settings>
+<grid distance="50" unitdist="mil" unit="mil" style="lines" multiple="1" display="yes" altdistance="5" altunitdist="mil" altunit="mil"/>
+<layers>
+<layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
+<layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
+<layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
+<layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="yes"/>
+<layer number="20" name="Dimension" color="24" fill="1" visible="yes" active="yes"/>
+<layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="27" name="tValues" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
+<layer number="30" name="bStop" color="7" fill="6" visible="no" active="yes"/>
+<layer number="31" name="tCream" color="7" fill="4" visible="no" active="yes"/>
+<layer number="32" name="bCream" color="7" fill="5" visible="no" active="yes"/>
+<layer number="33" name="tFinish" color="6" fill="3" visible="no" active="yes"/>
+<layer number="34" name="bFinish" color="6" fill="6" visible="no" active="yes"/>
+<layer number="35" name="tGlue" color="7" fill="4" visible="no" active="yes"/>
+<layer number="36" name="bGlue" color="7" fill="5" visible="no" active="yes"/>
+<layer number="37" name="tTest" color="7" fill="1" visible="no" active="yes"/>
+<layer number="38" name="bTest" color="7" fill="1" visible="no" active="yes"/>
+<layer number="39" name="tKeepout" color="4" fill="11" visible="yes" active="yes"/>
+<layer number="40" name="bKeepout" color="1" fill="11" visible="yes" active="yes"/>
+<layer number="41" name="tRestrict" color="4" fill="10" visible="yes" active="yes"/>
+<layer number="42" name="bRestrict" color="1" fill="10" visible="yes" active="yes"/>
+<layer number="43" name="vRestrict" color="2" fill="10" visible="yes" active="yes"/>
+<layer number="44" name="Drills" color="7" fill="1" visible="no" active="yes"/>
+<layer number="45" name="Holes" color="7" fill="1" visible="no" active="yes"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="no" active="yes"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="no" active="yes"/>
+<layer number="48" name="Document" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="49" name="Reference" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="88" name="SimResults" color="9" fill="1" visible="yes" active="yes"/>
+<layer number="89" name="SimProbes" color="9" fill="1" visible="yes" active="yes"/>
+<layer number="90" name="Modules" color="5" fill="1" visible="yes" active="yes"/>
+<layer number="91" name="Nets" color="2" fill="1" visible="yes" active="yes"/>
+<layer number="92" name="Busses" color="1" fill="1" visible="yes" active="yes"/>
+<layer number="93" name="Pins" color="2" fill="1" visible="yes" active="yes"/>
+<layer number="94" name="Symbols" color="4" fill="1" visible="yes" active="yes"/>
+<layer number="95" name="Names" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="96" name="Values" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="97" name="Info" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="98" name="Guide" color="6" fill="1" visible="yes" active="yes"/>
+</layers>
+<library>
+<packages>
+<package name="IOT-GA6-B">
+<pad name="N1" x="0" y="0.064515625" drill="0.2" diameter="0.0254"/>
+<pad name="INT" x="12.7" y="0" drill="1" diameter="2.1844"/>
+<pad name="RST" x="12.7" y="2.54" drill="1" diameter="2.1844"/>
+<pad name="MIC+" x="12.7" y="5.08" drill="1" diameter="2.1844"/>
+<pad name="MIC-" x="12.7" y="7.62" drill="1" diameter="2.1844"/>
+<pad name="PWR" x="12.7" y="-2.54" drill="1" diameter="2.1844"/>
+<pad name="NETLED" x="12.7" y="-5.08" drill="1" diameter="2.1844"/>
+<pad name="GPIO14" x="12.7" y="-7.62" drill="1" diameter="2.1844"/>
+<pad name="VCC" x="12.7" y="-10.16" drill="1" diameter="2.1844"/>
+<pad name="MIC2_P" x="-10.16" y="7.62" drill="1" diameter="2.1844"/>
+<pad name="EAR_L" x="-10.16" y="5.08" drill="1" diameter="2.1844"/>
+<pad name="EAR_R" x="-10.16" y="2.54" drill="1" diameter="2.1844"/>
+<pad name="UTX" x="-10.16" y="0" drill="1" diameter="2.1844"/>
+<pad name="URX" x="-10.16" y="-2.54" drill="1" diameter="2.1844"/>
+<pad name="GND" x="-10.16" y="-5.08" drill="1" diameter="2.1844"/>
+<pad name="HRX" x="-10.16" y="-7.62" drill="1" diameter="2.1844"/>
+<pad name="HTX" x="-10.16" y="-10.16" drill="1" diameter="2.1844"/>
+</package>
+</packages>
+<symbols>
+<symbol name="IOT-GA6-B">
+<pin name="MIC2_P" x="-15.24" y="17.78" length="middle"/>
+<pin name="EAR_L" x="-15.24" y="15.24" length="middle"/>
+<pin name="EAR_R" x="-15.24" y="12.7" length="middle"/>
+<pin name="UTX" x="-15.24" y="10.16" length="middle"/>
+<pin name="URX" x="-15.24" y="7.62" length="middle"/>
+<pin name="GND" x="-15.24" y="5.08" length="middle"/>
+<pin name="HRX" x="-15.24" y="2.54" length="middle"/>
+<pin name="HTX" x="-15.24" y="0" length="middle"/>
+<pin name="VCC" x="15.24" y="0" length="middle" rot="R180"/>
+<pin name="GPIO14" x="15.24" y="2.54" length="middle" rot="R180"/>
+<pin name="NETLED" x="15.24" y="5.08" length="middle" rot="R180"/>
+<pin name="PWR" x="15.24" y="7.62" length="middle" rot="R180"/>
+<pin name="INT" x="15.24" y="10.16" length="middle" rot="R180"/>
+<pin name="RST" x="15.24" y="12.7" length="middle" rot="R180"/>
+<pin name="MIC+" x="15.24" y="15.24" length="middle" rot="R180"/>
+<pin name="MIC-" x="15.24" y="17.78" length="middle" rot="R180"/>
+<wire x1="-10.16" y1="22.86" x2="-10.16" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="-10.16" y1="-2.54" x2="10.16" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="10.16" y1="-2.54" x2="10.16" y2="22.86" width="0.254" layer="94"/>
+<wire x1="10.16" y1="22.86" x2="-10.16" y2="22.86" width="0.254" layer="94"/>
+<text x="-7.62" y="20.32" size="1.6764" layer="94">Mod_IOT-GA6-B</text>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="IOT-GA6-B">
+<gates>
+<gate name="G$1" symbol="IOT-GA6-B" x="0" y="-2.54"/>
+</gates>
+<devices>
+<device name="" package="IOT-GA6-B">
+<connects>
+<connect gate="G$1" pin="EAR_L" pad="EAR_L"/>
+<connect gate="G$1" pin="EAR_R" pad="EAR_R"/>
+<connect gate="G$1" pin="GND" pad="GND"/>
+<connect gate="G$1" pin="GPIO14" pad="GPIO14"/>
+<connect gate="G$1" pin="HRX" pad="HRX"/>
+<connect gate="G$1" pin="HTX" pad="HTX"/>
+<connect gate="G$1" pin="INT" pad="INT"/>
+<connect gate="G$1" pin="MIC+" pad="MIC+"/>
+<connect gate="G$1" pin="MIC-" pad="MIC-"/>
+<connect gate="G$1" pin="MIC2_P" pad="MIC2_P"/>
+<connect gate="G$1" pin="NETLED" pad="NETLED"/>
+<connect gate="G$1" pin="PWR" pad="PWR"/>
+<connect gate="G$1" pin="RST" pad="RST"/>
+<connect gate="G$1" pin="URX" pad="URX"/>
+<connect gate="G$1" pin="UTX" pad="UTX"/>
+<connect gate="G$1" pin="VCC" pad="VCC"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
+</drawing>
+</eagle>
