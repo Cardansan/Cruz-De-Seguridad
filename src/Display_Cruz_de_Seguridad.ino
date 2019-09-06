@@ -31,7 +31,7 @@
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);       //Cruz
 Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUM_PIXELS1, PIN1, NEO_GRBW + NEO_KHZ800);    //Dias
 Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(NUM_PIXELS2, PIN2, NEO_GRBW + NEO_KHZ800);    // Mes
-Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(NUM_PIXELS3, PIN3, NEO_GRB + NEO_KHZ800);    // Año
+Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(NUM_PIXELS3, PIN3, NEO_GRBW + NEO_KHZ800);    // Año
 
 const int numPixAnio = 14;
 const int numPixMes = 14;
@@ -286,45 +286,40 @@ void displayNumMes(uint16_t h, uint32_t col)
 //------------------------------------------------------------------------------displayNumAnio
 void displayNumAnio(uint16_t h, uint32_t col)
 {
-  uint16_t firstDigit = h / 1000;
-  uint16_t secondDigit = (h % 1000)/100;
-  uint16_t thirdDigit = ((h%1000)%100)/ 10; //En el año y el mes sólo se muestran los últimos dos dígitos
-  uint16_t fourthDigit = ((h%1000)%100)%10;
-  int j = 0;
+  uint16_t decenas = (h%100)/ 10;
+  uint16_t unidades = (h%100)%10;
+  //int j = numPixAnio + numPixMes + numPixFechas; //Para la posicion del neopixel.
+  int j = 0;  //Para la posicion del neopixel
   int i = 0;
 
-   //-------------------------------------------- thirdDigit
-   j=0;
+  // -------------------------------------------- unidades
   for (i = 0; i < 7; i++)
   {
-    if ((numbers[thirdDigit] & (1 << 7 - i)) && ((thirdDigit >= 1) || (secondDigit > 0) || (firstDigit > 0)))
-    {
-      strip3.setPixelColor(j + 14, Wheel(col));
-      //strip3.setPixelColor(j+1 + 14,Wheel(col));
-    }
-    else
-    {
-      strip3.setPixelColor(j + 14, 0,0,0);
-      //strip3.setPixelColor(j+1 + 14, 0,0,0);
-    }
-    j=j+2;
-  }
-   // -------------------------------------------- fourthDigit
-   j=0;
-  for (i = 0; i < 7; i++)
-  {
-    if (numbers[fourthDigit] & (1 << 7 - i))
+    if (numbers[unidades] & (1 << 7 - i))
     {
       strip3.setPixelColor(j ,Wheel(col));
-      strip3.setPixelColor(j+1 , Wheel(col));
     }
     else
     {
       strip3.setPixelColor(j , 0,0,0);
-      strip3.setPixelColor(j+1 , 0,0,0);
     }
-    j=j+2;
+    j=j+1;
   }
+
+  //-------------------------------------------- decenas
+  j=0;
+  for (i = 0; i < 7; i++)
+  {
+    if ((numbers[decenas] & (1 << 7 - i)) && (decenas >= 1))//el cero no se muestra
+    {
+      strip3.setPixelColor(j + 7, Wheel(col));
+    }
+    else
+    {
+      strip3.setPixelColor(j + 7, 0,0,0);
+    }
+   j=j+1;
+ }
    strip3.show();
 }
 
@@ -408,7 +403,8 @@ uint32_t Wheel(byte WheelPos)
 
   if (WheelPos == 0)
   { //Para el color blanco
-    return strip.Color(255, 255, 255);
+    return strip.Color(0, 0, 0,255);
+    //return strip.Color(255, 255, 255);
   }
 else {
   WheelPos = 255 - WheelPos;
@@ -531,7 +527,7 @@ void loop()
       valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
       valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
 
-      if((ndiaact > 0) && (ndiaact <= 9999))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
+      if((ndiaact >= 0) && (ndiaact <= 9999))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
       {
         displayNumDiasSinAcc(ndiaact,color1);
 
