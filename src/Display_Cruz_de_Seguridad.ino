@@ -25,16 +25,16 @@
 //#define NUM_PIXELS 369
 #define NUM_PIXELS 229  //cruz
 #define NUM_PIXELS1 84  //dias totales
-#define NUM_PIXELS2 28 //Mes
-#define NUM_PIXELS3 28 //año
+#define NUM_PIXELS2 14 //Mes
+#define NUM_PIXELS3 14 //año
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ400);
-Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUM_PIXELS1, PIN1, NEO_GRB + NEO_KHZ400);
-Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(NUM_PIXELS2, PIN2, NEO_GRB + NEO_KHZ400);
-Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(NUM_PIXELS3, PIN3, NEO_GRB + NEO_KHZ400);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ800);       //Cruz
+Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUM_PIXELS1, PIN1, NEO_GRBW + NEO_KHZ800);    //Dias
+Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(NUM_PIXELS2, PIN2, NEO_GRBW + NEO_KHZ800);    // Mes
+Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(NUM_PIXELS3, PIN3, NEO_GRB + NEO_KHZ800);    // Año
 
-const int numPixAnio = 28;
-const int numPixMes = 28;
+const int numPixAnio = 14;
+const int numPixMes = 14;
 const int numPixDias = 84;
 const int numPixFechas = 229;
 
@@ -210,49 +210,78 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
    strip1.show();
 }
 
+//############################################################3
 //---------------------------------------------------------------------------- displayNumMes
 void displayNumMes(uint16_t h, uint32_t col)
 {
   uint16_t firstDigit = h / 1000;
   uint16_t secondDigit = (h % 1000)/100;
-  uint16_t thirdDigit = ((h%1000)%100)/ 10; //En el año y el mes sólo se muestran los últimos dos dígitos
-  uint16_t fourthDigit = ((h%1000)%100)%10;
+  uint16_t decenas = ((h%1000)%100)/ 10;
+  uint16_t unidades = ((h%1000)%100)%10;
   int j = 0;//numPixAnio;
   int i = 0;
-   //-------------------------------------------- thirdDigit
+
+  Serial.println(unidades);
+  Serial.println(decenas);
+
+  // -------------------------------------------- UNIDADES (Primer digito, el display está invertido)
+  j=0;
+ for (i = 0; i < 7; i++)
+ {
+   if (numbers[decenas] & (1 << 7 - i))
+   {
+     // Versión con 1 LED por segmento
+     strip2.setPixelColor(j ,Wheel(col));
+
+     //Versión con 2 LEDS por segmento
+     //strip2.setPixelColor(j ,Wheel(col));
+     //strip2.setPixelColor(j+1 , Wheel(col));
+   }
+   else
+   {
+     //Versión con 1 LEDS por segmento
+     strip2.setPixelColor(j , 0,0,0);
+
+     //Versión con 2 LEDS por segmento
+     //strip2.setPixelColor(j , 0,0,0);
+     //strip2.setPixelColor(j+1 , 0,0,0);
+   }
+   //j=j+2; // "2 LEDs"
+   j=j++; // "1 LED"
+ }
+
+   //-------------------------------------------- DECENAS
    j=0;
   for (i = 0; i < 7; i++)
   {
-    if ((numbers[thirdDigit] & (1 << 7 - i)) && ((thirdDigit >= 1) || (secondDigit > 0) || (firstDigit > 0)))
+    if (numbers[unidades] & (1 << 7 - i))
     {
-      strip2.setPixelColor(j + 14, Wheel(col));
-      strip2.setPixelColor(j+1 + 14,Wheel(col));
+      //Version con 1 LED por segmento
+      strip2.setPixelColor(j + 7, Wheel(col));
+
+      //Versión con 2 LEDS por segmento
+      //strip2.setPixelColor(j + 14, Wheel(col));
+      //strip2.setPixelColor(j+1 + 14,Wheel(col));
     }
     else
     {
-      strip2.setPixelColor(j + 14, 0,0,0);
-      strip2.setPixelColor(j+1 + 14, 0,0,0);
+      //Version con 1 LED por segmentos
+      strip2.setPixelColor(j + 7, 0,0,0);
+
+      //Versión con 2 LEDS por segmento
+      //strip2.setPixelColor(j + 14, 0,0,0);
+      //strip2.setPixelColor(j+1 + 14, 0,0,0);
     }
-    j=j+2;
+     //j=j+2; // 2 LEDS
+     j=j++; // 1 LED
   }
-   // -------------------------------------------- fourthDigit
-   j=0;
-  for (i = 0; i < 7; i++)
-  {
-    if (numbers[fourthDigit] & (1 << 7 - i))
-    {
-      strip2.setPixelColor(j ,Wheel(col));
-      strip2.setPixelColor(j+1 , Wheel(col));
-    }
-    else
-    {
-      strip2.setPixelColor(j , 0,0,0);
-      strip2.setPixelColor(j+1 , 0,0,0);
-    }
-    j=j+2;
-  }
+
    strip2.show();
 }
+
+//#######################################################################
+
+
 //------------------------------------------------------------------------------displayNumAnio
 void displayNumAnio(uint16_t h, uint32_t col)
 {
@@ -270,12 +299,12 @@ void displayNumAnio(uint16_t h, uint32_t col)
     if ((numbers[thirdDigit] & (1 << 7 - i)) && ((thirdDigit >= 1) || (secondDigit > 0) || (firstDigit > 0)))
     {
       strip3.setPixelColor(j + 14, Wheel(col));
-      strip3.setPixelColor(j+1 + 14,Wheel(col));
+      //strip3.setPixelColor(j+1 + 14,Wheel(col));
     }
     else
     {
       strip3.setPixelColor(j + 14, 0,0,0);
-      strip3.setPixelColor(j+1 + 14, 0,0,0);
+      //strip3.setPixelColor(j+1 + 14, 0,0,0);
     }
     j=j+2;
   }
@@ -300,6 +329,8 @@ void displayNumAnio(uint16_t h, uint32_t col)
 
 
 //------------------------------------------------------------------------------displayAccidente
+// Esta función deberia mostrar los días sin accidentes en 4 displays de 7 segmentos
+// Esta función se utiliza si es una sola tira que se une a la salida de la Cruz
 void displayAccidente(uint16_t h, uint32_t col)
 {
    uint16_t i;
@@ -481,7 +512,7 @@ void loop()
       color = valColor.toInt();
       if((color <= 5) && ((fechaAccidente > 0) && (fechaAccidente <= 31)))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
       {
-        Serial.print("Dia: ");
+        Serial.print("Fecha: ");
         Serial.print(fechaAccidente);
         Serial.print("\t");
         Serial.print("Color: ");
@@ -495,20 +526,43 @@ void loop()
       break;
 
       case 't':   //Total
-      //delay(1000);
-      //Serial.println("Ingrese dias totales sin accidentes y color (0-255): ");
+
       valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
       valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
-      //Serial.println(ndiaact);
-      displayNumDiasSinAcc(ndiaact,color1);
+
+      if((ndiaact > 0) && (ndiaact <= 9999))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
+      {
+        displayNumDiasSinAcc(ndiaact,color1);
+
+        Serial.print("Dias: ");
+        Serial.print(valDiaActual);
+        Serial.print("\t");
+        Serial.print("Color: ");
+        Serial.println(valColor);
+      }
+      else
+      {
+        Serial.println("Valor de días fuera de rango");
+      }
       break;
 
       case 'm':   //Mes
-      //delay(1000);
-      //Serial.println("Ingrese el mes a mostrar y color (0-255): ");
       valMes = Serial.readStringUntil(','); mes = valMes.toInt();
       valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
-      displayNumMes(mes,color1);
+      if((mes > 0) && (mes<=12))
+      {
+        displayNumMes(mes,color1);
+        Serial.print("Mes: ");
+        Serial.print(mes);
+        Serial.print("\t");
+        Serial.print("Color: ");
+        Serial.println(color1);
+      }
+      else
+      {
+        Serial.println("Valor de mes fuera de rango");
+      }
+
       break;
 
       case 'a':   //Año
@@ -521,6 +575,7 @@ void loop()
 
       case 's':   //Shutdown
       //delay(1000);
+      Serial.println("Apagando display");
       apagaPixels();
       break;
   }
