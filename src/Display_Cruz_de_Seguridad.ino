@@ -127,73 +127,18 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 //------------------------------------------------------------------------------displayNumDiasSinAcc
 void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mostrar, color para Wheel().
 {
-  uint16_t firstDigit = h / 1000;
-  uint16_t secondDigit = (h % 1000)/100;
-  uint16_t thirdDigit = ((h%1000)%100)/ 10;
-  uint16_t fourthDigit = ((h%1000)%100)%10;
+  uint16_t millares = h / 1000;
+  uint16_t centenas = (h % 1000)/100;
+  uint16_t decenas = ((h%1000)%100)/ 10;
+  uint16_t unidades = ((h%1000)%100)%10;
   //int j = numPixAnio + numPixMes + numPixFechas; //Para la posicion del neopixel.
   int j = 0;  //Para la posicion del neopixel
   int i = 0;
 
-  //---------------------------------------- firstDigit
-  for ( i = 0; i < 7; i++)
-  {
-    if ((numbers[firstDigit] & (1 << 7 - i)) && (firstDigit > 0)) // Que sea diferente de cero
-    { //Revisa el byte específico del vector y decide si debe encenderlo de algún color o apagarlo
-      strip1.setPixelColor(j + (21 * 3), Wheel(col)); //Le asigna el color o...
-      strip1.setPixelColor(j+1 + (21 * 3), Wheel(col));
-      strip1.setPixelColor(j+2 + (21 * 3), Wheel(col));
-    }
-    else
-    {
-      strip1.setPixelColor(j + (21 * 3 ), 0,0,0,0); //...lo apaga
-      strip1.setPixelColor(j+1 + (21 * 3 + 2), 0,0,0);
-      strip1.setPixelColor(j+2 + (21 * 3 + 2), 0,0,0);
-    }
-    j=j+3; //Posicion del Neopixel
-  }
-
-  // ---------------------------------------- secondDigit
-  j=0;
+  // -------------------------------------------- unidades
   for (i = 0; i < 7; i++)
   {
-    if ((numbers[secondDigit] & (1 << 7 - i)) && ((secondDigit >= 1) || (firstDigit > 0))) //el cero no se muestra
-    {
-      strip1.setPixelColor(j + (21*2),Wheel(col));
-      strip1.setPixelColor(j+1 + (21*2),Wheel(col));
-      strip1.setPixelColor(j+2 + (21*2),Wheel(col));
-    }
-    else
-    {
-      strip1.setPixelColor(j + (21*2), 0,0,0);
-      strip1.setPixelColor(j+1 + (21*2), 0,0,0);
-      strip1.setPixelColor(j+2 + (21*2), 0,0,0);
-    }
-    j=j+3;
-  }
-   //-------------------------------------------- thirdDigit
-   j=0;
-  for (i = 0; i < 7; i++)
-  {
-    if ((numbers[thirdDigit] & (1 << 7 - i)) && ((thirdDigit >= 1) || (secondDigit > 0) || (firstDigit > 0))) //el cero no se muestra
-    {
-      strip1.setPixelColor(j + 21, Wheel(col));
-      strip1.setPixelColor(j+1 + 21,Wheel(col));
-      strip1.setPixelColor(j+2 + 21,Wheel(col));
-    }
-    else
-    {
-      strip1.setPixelColor(j + 21, 0,0,0);
-      strip1.setPixelColor(j+1 + 21, 0,0,0);
-      strip1.setPixelColor(j+2 + 21, 0,0,0);
-    }
-    j=j+3;
-  }
-   // -------------------------------------------- fourthDigit
-   j=0;
-  for (i = 0; i < 7; i++)
-  {
-    if (numbers[fourthDigit] & (1 << 7 - i))
+    if (numbers[unidades] & (1 << 7 - i))
     {
       strip1.setPixelColor(j ,Wheel(col));
       strip1.setPixelColor(j+1 , Wheel(col));
@@ -207,7 +152,63 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
     }
     j=j+3;
   }
-   strip1.show();
+
+  //-------------------------------------------- decenas
+  j=0;
+  for (i = 0; i < 7; i++)
+  {
+    if ((numbers[decenas] & (1 << 7 - i)) && ((decenas >= 1) || (centenas > 0) || (millares > 0))) //el cero no se muestra
+    {
+      strip1.setPixelColor(j + 21, Wheel(col));
+      strip1.setPixelColor(j+1 + 21,Wheel(col));
+      strip1.setPixelColor(j+2 + 21,Wheel(col));
+    }
+    else
+    {
+      strip1.setPixelColor(j + 21, 0,0,0);
+      strip1.setPixelColor(j+1 + 21, 0,0,0);
+      strip1.setPixelColor(j+2 + 21, 0,0,0);
+    }
+   j=j+3;
+ }
+
+ // ---------------------------------------- centenas
+  j=0;
+  for (i = 0; i < 7; i++)
+  {
+    if ((numbers[centenas] & (1 << 7 - i)) && ((centenas >= 1) || (decenas > 0))) //el cero no se muestra
+    {
+      strip1.setPixelColor(j + (21*2),Wheel(col));
+      strip1.setPixelColor(j+1 + (21*2),Wheel(col));
+      strip1.setPixelColor(j+2 + (21*2),Wheel(col));
+    }
+    else
+    {
+      strip1.setPixelColor(j + (21*2), 0,0,0);
+      strip1.setPixelColor(j+1 + (21*2), 0,0,0);
+      strip1.setPixelColor(j+2 + (21*2), 0,0,0);
+    }
+  j=j+3;
+ }
+ j=0;
+ //---------------------------------------- millares
+  for ( i = 0; i < 7; i++)
+  {
+    if ((numbers[millares] & (1 << 7 - i)) && (millares > 0)) // Que sea diferente de cero
+      { //Revisa el byte específico del vector y decide si debe encenderlo de algún color o apagarlo
+        strip1.setPixelColor(j + (21 * 3), Wheel(col)); //Le asigna el color o...
+        strip1.setPixelColor(j+1 + (21 * 3), Wheel(col));
+        strip1.setPixelColor(j+2 + (21 * 3), Wheel(col));
+      }
+    else
+    {
+      strip1.setPixelColor(j + (21 * 3 ), 0,0,0,0); //...lo apaga
+      strip1.setPixelColor(j+1 + (21 * 3 + 2), 0,0,0);
+      strip1.setPixelColor(j+2 + (21 * 3 + 2), 0,0,0);
+    }
+    j=j+3; //Posicion del Neopixel
+  }
+  strip1.show();
 }
 
 //############################################################3
