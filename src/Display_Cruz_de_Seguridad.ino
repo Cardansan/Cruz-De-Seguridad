@@ -71,6 +71,19 @@ byte numbers[] = {
   B11111110,    // 8
   B10011110    // 9
 };
+
+byte numbersINV[] = {
+  B11101110,    // 0
+  B10001000,    // 1
+  B11010110,    // 2    5555
+  B11011100,    // 3   4    6
+  B10111000,    // 4    3333
+  B01111100,    // 5   0    2
+  B01111110,    // 6    1111
+  B11001000,    // 7
+  B11111110,    // 8
+  B11111000    // 9
+};
 //Cuántos segmentos ocupa cada número de día del mes
 int segmDia[]{0,2,5,5,4,5,6,3,7,6,8,4,7,7,6,7,8,5,9,8,11,7,10,10,9,10,11,8,12,11,11,7};
 //Suma total de segmentos iluminados hasta el día actual
@@ -157,7 +170,7 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   j=0;
   for (i = 0; i < 7; i++)
   {
-    if ((numbers[decenas] & (1 << 7 - i)) && ((decenas >= 1) || (centenas > 0) || (millares > 0))) //el cero no se muestra
+    if ((numbers[decenas] & (1 << 7 - i)) && ((decenas >= 1) || (centenas >= 1) || (millares >= 1))) //el cero no se muestra
     {
       strip1.setPixelColor(j + 21, Wheel(col));
       strip1.setPixelColor(j+1 + 21,Wheel(col));
@@ -176,7 +189,7 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   j=0;
   for (i = 0; i < 7; i++)
   {
-    if ((numbers[centenas] & (1 << 7 - i)) && ((centenas >= 1) || (decenas > 0))) //el cero no se muestra
+    if ((numbers[centenas] & (1 << 7 - i)) && ((centenas >= 1) || (millares >= 1))) //el cero no se muestra
     {
       strip1.setPixelColor(j + (21*2),Wheel(col));
       strip1.setPixelColor(j+1 + (21*2),Wheel(col));
@@ -194,7 +207,7 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
  //---------------------------------------- millares
   for ( i = 0; i < 7; i++)
   {
-    if ((numbers[millares] & (1 << 7 - i)) && (millares > 0)) // Que sea diferente de cero
+    if ((numbers[millares] & (1 << 7 - i)) && (millares >= 1)) // Que sea diferente de cero
       { //Revisa el byte específico del vector y decide si debe encenderlo de algún color o apagarlo
         strip1.setPixelColor(j + (21 * 3), Wheel(col)); //Le asigna el color o...
         strip1.setPixelColor(j+1 + (21 * 3), Wheel(col));
@@ -202,9 +215,9 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
       }
     else
     {
-      strip1.setPixelColor(j + (21 * 3 ), 0,0,0,0); //...lo apaga
-      strip1.setPixelColor(j+1 + (21 * 3 + 2), 0,0,0);
-      strip1.setPixelColor(j+2 + (21 * 3 + 2), 0,0,0);
+      strip1.setPixelColor(j + (21 * 3 ), 0,0,0); //...lo apaga
+      strip1.setPixelColor(j+1 + (21 * 3), 0,0,0);
+      strip1.setPixelColor(j+2 + (21 * 3), 0,0,0);
     }
     j=j+3; //Posicion del Neopixel
   }
@@ -215,68 +228,43 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
 //---------------------------------------------------------------------------- displayNumMes
 void displayNumMes(uint16_t h, uint32_t col)
 {
-  uint16_t firstDigit = h / 1000;
-  uint16_t secondDigit = (h % 1000)/100;
-  uint16_t decenas = ((h%1000)%100)/ 10;
-  uint16_t unidades = ((h%1000)%100)%10;
-  int j = 0;//numPixAnio;
+  uint16_t decenas = (h%100)/ 10;
+  uint16_t unidades = (h%100)%10;
+
+  Serial.println(decenas);
+  Serial.println(unidades);
+  //int j = numPixAnio + numPixMes + numPixFechas; //Para la posicion del neopixel.
+  int j = 0;  //Para la posicion del neopixel
   int i = 0;
 
-  Serial.println(unidades);
-  Serial.println(decenas);
-
-  // -------------------------------------------- UNIDADES (Primer digito, el display está invertido)
-  j=0;
- for (i = 0; i < 7; i++)
- {
-   if (numbers[decenas] & (1 << 7 - i))
-   {
-     // Versión con 1 LED por segmento
-     strip2.setPixelColor(j ,Wheel(col));
-
-     //Versión con 2 LEDS por segmento
-     //strip2.setPixelColor(j ,Wheel(col));
-     //strip2.setPixelColor(j+1 , Wheel(col));
-   }
-   else
-   {
-     //Versión con 1 LEDS por segmento
-     strip2.setPixelColor(j , 0,0,0);
-
-     //Versión con 2 LEDS por segmento
-     //strip2.setPixelColor(j , 0,0,0);
-     //strip2.setPixelColor(j+1 , 0,0,0);
-   }
-   //j=j+2; // "2 LEDs"
-   j=j++; // "1 LED"
- }
-
-   //-------------------------------------------- DECENAS
-   j=0;
-  for (i = 0; i < 7; i++)
+  //-------------------------------------------- unidades
+  j=7;
+  for (i = 1; i <= 7; i++)
   {
-    if (numbers[unidades] & (1 << 7 - i))
+    if (numbersINV[unidades] & (1 << i))//el cero no se muestra
     {
-      //Version con 1 LED por segmento
-      strip2.setPixelColor(j + 7, Wheel(col));
-
-      //Versión con 2 LEDS por segmento
-      //strip2.setPixelColor(j + 14, Wheel(col));
-      //strip2.setPixelColor(j+1 + 14,Wheel(col));
+      strip2.setPixelColor(j, Wheel(col));
     }
     else
     {
-      //Version con 1 LED por segmentos
-      strip2.setPixelColor(j + 7, 0,0,0);
-
-      //Versión con 2 LEDS por segmento
-      //strip2.setPixelColor(j + 14, 0,0,0);
-      //strip2.setPixelColor(j+1 + 14, 0,0,0);
+      strip2.setPixelColor(j, 0,0,0);
     }
-     //j=j+2; // 2 LEDS
-     j=j++; // 1 LED
+   j=j+1;
   }
-
+  j=0;
+  // -------------------------------------------- decenas
+  for (i = 1; i <= 7; i++)
+  {
+    if ((numbersINV[decenas] & (1 << i))&& (decenas >= 1))
+    {
+      strip2.setPixelColor(j ,Wheel(col));
+    }
+    else
+    {
+      strip2.setPixelColor(j , 0,0,0);
+    }
+    j=j+1;
+  }
    strip2.show();
 }
 
@@ -539,7 +527,7 @@ void loop()
       }
       else
       {
-        Serial.println("Valor de días fuera de rango");
+        Serial.println("Valor de dias fuera de rango");
       }
       break;
 
@@ -563,11 +551,22 @@ void loop()
       break;
 
       case 'a':   //Año
-      //delay(1000);
-      //Serial.println("Ingrese el anio a mostrar y color (0-255): ");
       valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
       valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
-      displayNumAnio(anio,color1);
+      if((anio >= 0) && (anio <=99))
+      {
+        displayNumAnio(anio,color1);
+        Serial.print("Anio: ");
+        Serial.print(anio);
+        Serial.print("\t");
+        Serial.print("Color: ");
+        Serial.println(color1);
+      }
+      else
+      {
+        Serial.println("Valor de anio fuera de rango");
+      }
+
       break;
 
       case 's':   //Shutdown
