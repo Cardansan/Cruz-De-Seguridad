@@ -16,6 +16,7 @@
 #include <WebSocketsServer.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
+#include <Wire.h>
 
 #define PIN D1      // cruz
 #define PIN1 D2     // dias totales
@@ -413,6 +414,19 @@ else {
 }
 }
 
+
+void receiveEvent(size_t howMany)
+{
+  (void) howMany;
+  while (1 < Wire.available())
+  { // loop through all but the last
+    char c = Wire.read(); // receive byte as a character
+    Serial.print(c);         // print the character
+  }
+  int x = Wire.read();    // receive byte as an integer
+  Serial.println(x);         // print the integer
+}
+
 // ######################################################################################
 //----------------------------------------------------- configuraciones
 void setup()
@@ -423,6 +437,10 @@ void setup()
 
   // Se inicializa el puerto serie
   Serial.begin(115200);
+
+  // Se inicializa la comunicacion por I2C  (SDA,SCL,ADD)
+  Wire.begin(D6,D5,0x08);
+  Wire.onReceive(receiveEvent); // register event
 
   // Se inician los neopixels
   strip.setBrightness(Brightness);
