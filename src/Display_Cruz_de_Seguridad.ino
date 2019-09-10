@@ -42,7 +42,7 @@ const int numPixFechas = 229;
 ESP8266WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 ESP8266HTTPUpdateServer httpUpdater;
-//File fsUploadFile;
+File fsUploadFile;
 
 const char WiFiAPPSK[] = "d1spl4y4.0";  //CONTRASEÑA
 const char ssid[] = "Cruz_de_Seguridad"; // NOMBRE DE LA RED
@@ -94,6 +94,49 @@ int segmDiaTotal[]{0,2,7,12,16,21,27,30,37,43,51,55,62,69,75,82,90,95,104,112,12
 
 //Socket.send('Connect ' + new Date());
 //char webpage[] PROGMEM = R"=====()=====";
+// ----------------------------------------------------------------- handleFileUpload
+//funcion para actualizar archivos OTA
+void handleFileUpload()
+{
+  HTTPUpload& upload = server.upload();
+  if(upload.status == UPLOAD_FILE_START)
+  {
+    String filename = upload.filename;
+    if(!filename.startsWith("/"))
+      filename = "/"+filename;
+    Serial.print("handleFileUpload Name: "); Serial.println(filename);
+    fsUploadFile = SPIFFS.open(filename, "w");
+  } else if(upload.status == UPLOAD_FILE_WRITE)
+  {
+    if(fsUploadFile)
+      fsUploadFile.write(upload.buf, upload.currentSize);
+  } else if(upload.status == UPLOAD_FILE_END)
+  {
+    if(fsUploadFile)
+      fsUploadFile.close();
+    Serial.print("handleFileUpload Size: "); Serial.println(upload.totalSize);
+  }
+}
+
+//----------------------------------------------------------------handleFileList
+void handleFileList()
+{
+  String path = "/";
+  // Assuming there are no subdirectories
+  Dir dir = SPIFFS.openDir(path);
+  String output = "[";
+  while(dir.next())
+  {
+    File entry = dir.openFile("r");
+    // Separate by comma if there are multiple files
+    if(output != "[")
+      output += ",";
+    output += String(entry.name()).substring(1);
+    entry.close();
+  }
+  output += "]";
+  server.send(200, "text/plain", output);
+}
 
 // --------------------------------------------------------------------------- handleIndexFile
 void handleIndexFile()
@@ -415,6 +458,8 @@ else {
 }
 }
 
+
+
 // ######################################################################################
 //----------------------------------------------------- configuraciones
 void setup()
@@ -455,17 +500,18 @@ void setup()
     Serial.println("\nMDNS responder started");
   }
 
-  // Servidor para actualizar el programa vía WEB
-  httpUpdater.setup(&server);
-  //httpServer.begin();
 
   // handle index
   server.on("/",handleIndexFile);
-  /* server.on("/", []()
-  {
-    // send index.html
-    server.send_P(200, "text/html", webpage);
-  });*/
+
+  server.on("/list", handleFileList);
+// Servidor para actualizar los archivos para la pagina web
+  server.on("/web", HTTP_POST, [](){
+  server.send(200, "text/plain", "{\"success\":1}");
+}, handleFileUpload);
+
+  // Servidor para actualizar el programa vía WEB
+  httpUpdater.setup(&server);
 
   server.begin();
   webSocket.begin();
