@@ -16,6 +16,7 @@
 #include <WebSocketsServer.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
+#include <ESP8266HTTPUpdateServer.h>
 
 #define PIN D1      // cruz
 #define PIN1 D2     // dias totales
@@ -40,6 +41,7 @@ const int numPixFechas = 229;
 
 ESP8266WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
+ESP8266HTTPUpdateServer httpUpdater;
 //File fsUploadFile;
 
 const char WiFiAPPSK[] = "d1spl4y4.0";  //CONTRASEÑA
@@ -452,6 +454,10 @@ void setup()
   {
     Serial.println("\nMDNS responder started");
   }
+
+  // Servidor para actualizar el programa vía WEB
+  httpUpdater.setup(&server);
+  //httpServer.begin();
 
   // handle index
   server.on("/",handleIndexFile);
