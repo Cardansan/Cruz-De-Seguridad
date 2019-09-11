@@ -16,7 +16,7 @@
 #include <WebSocketsServer.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
-#include <Wire.h>
+//#include <Wire.h>
 #include <ESP8266HTTPUpdateServer.h>
 
 #define PIN D1      // cruz
@@ -199,9 +199,9 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if (numbers[unidades] & (1 << 7 - i))
     {
-      strip1.setPixelColor(j ,Wheel(col));
-      strip1.setPixelColor(j+1 , Wheel(col));
-      strip1.setPixelColor(j+2 , Wheel(col));
+      strip1.setPixelColor(j ,NivelAccidente(col));
+      strip1.setPixelColor(j+1 , NivelAccidente(col));
+      strip1.setPixelColor(j+2 , NivelAccidente(col));
     }
     else
     {
@@ -218,9 +218,9 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if ((numbers[decenas] & (1 << 7 - i)) && ((decenas >= 1) || (centenas >= 1) || (millares >= 1))) //el cero no se muestra
     {
-      strip1.setPixelColor(j + 21, Wheel(col));
-      strip1.setPixelColor(j+1 + 21,Wheel(col));
-      strip1.setPixelColor(j+2 + 21,Wheel(col));
+      strip1.setPixelColor(j + 21, NivelAccidente(col));
+      strip1.setPixelColor(j+1 + 21,NivelAccidente(col));
+      strip1.setPixelColor(j+2 + 21,NivelAccidente(col));
     }
     else
     {
@@ -237,9 +237,9 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if ((numbers[centenas] & (1 << 7 - i)) && ((centenas >= 1) || (millares >= 1))) //el cero no se muestra
     {
-      strip1.setPixelColor(j + (21*2),Wheel(col));
-      strip1.setPixelColor(j+1 + (21*2),Wheel(col));
-      strip1.setPixelColor(j+2 + (21*2),Wheel(col));
+      strip1.setPixelColor(j + (21*2),NivelAccidente(col));
+      strip1.setPixelColor(j+1 + (21*2),NivelAccidente(col));
+      strip1.setPixelColor(j+2 + (21*2),NivelAccidente(col));
     }
     else
     {
@@ -255,9 +255,9 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if ((numbers[millares] & (1 << 7 - i)) && (millares >= 1)) // Que sea diferente de cero
       { //Revisa el byte específico del vector y decide si debe encenderlo de algún color o apagarlo
-        strip1.setPixelColor(j + (21 * 3), Wheel(col)); //Le asigna el color o...
-        strip1.setPixelColor(j+1 + (21 * 3), Wheel(col));
-        strip1.setPixelColor(j+2 + (21 * 3), Wheel(col));
+        strip1.setPixelColor(j + (21 * 3), NivelAccidente(col)); //Le asigna el color o...
+        strip1.setPixelColor(j+1 + (21 * 3), NivelAccidente(col));
+        strip1.setPixelColor(j+2 + (21 * 3), NivelAccidente(col));
       }
     else
     {
@@ -289,7 +289,7 @@ void displayNumMes(uint16_t h, uint32_t col)
   {
     if (numbersINV[unidades] & (1 << i))//el cero no se muestra
     {
-      strip2.setPixelColor(j, Wheel(col));
+      strip2.setPixelColor(j, NivelAccidente(col));
     }
     else
     {
@@ -303,7 +303,7 @@ void displayNumMes(uint16_t h, uint32_t col)
   {
     if ((numbersINV[decenas] & (1 << i))&& (decenas >= 1))
     {
-      strip2.setPixelColor(j ,Wheel(col));
+      strip2.setPixelColor(j ,NivelAccidente(col));
     }
     else
     {
@@ -331,7 +331,7 @@ void displayNumAnio(uint16_t h, uint32_t col)
   {
     if (numbers[unidades] & (1 << 7 - i))
     {
-      strip3.setPixelColor(j ,Wheel(col));
+      strip3.setPixelColor(j ,NivelAccidente(col));
     }
     else
     {
@@ -346,7 +346,7 @@ void displayNumAnio(uint16_t h, uint32_t col)
   {
     if ((numbers[decenas] & (1 << 7 - i)) && (decenas >= 1))//el cero no se muestra
     {
-      strip3.setPixelColor(j + 7, Wheel(col));
+      strip3.setPixelColor(j + 7, NivelAccidente(col));
     }
     else
     {
@@ -460,7 +460,7 @@ else {
 }
 
 
-void receiveEvent(size_t howMany)
+/*void receiveEvent(size_t howMany)
 {
   (void) howMany;
   while (1 < Wire.available())
@@ -470,7 +470,7 @@ void receiveEvent(size_t howMany)
   }
   int x = Wire.read();    // receive byte as an integer
   Serial.println(x);         // print the integer
-}
+}*/
 
 // ######################################################################################
 //----------------------------------------------------- configuraciones
@@ -484,8 +484,8 @@ void setup()
   Serial.begin(115200);
 
   // Se inicializa la comunicacion por I2C  (SDA,SCL,ADD)
-  Wire.begin(D6,D5,0x08);
-  Wire.onReceive(receiveEvent); // register event
+  //Wire.begin(D6,D5,0x08);
+  //Wire.onReceive(receiveEvent); // register event
 
   // Se inician los neopixels
   strip.setBrightness(Brightness);
@@ -561,7 +561,7 @@ void loop()
       //Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
       dia = Serial.readStringUntil(',');
       fechaAccidente = dia.toInt();
-      valColor = Serial.readStringUntil(',');
+      valColor = Serial.readStringUntil(')');
       color = valColor.toInt();
       if((color <= 5) && ((fechaAccidente > 0) && (fechaAccidente <= 31)))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
       {
@@ -581,7 +581,7 @@ void loop()
       case 't':   //Total
 
       valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
-      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+      valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
 
       if((ndiaact >= 0) && (ndiaact <= 9999))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
       {
@@ -601,7 +601,7 @@ void loop()
 
       case 'm':   //Mes
       valMes = Serial.readStringUntil(','); mes = valMes.toInt();
-      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+      valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
       if((mes > 0) && (mes<=12))
       {
         displayNumMes(mes,color1);
@@ -620,7 +620,7 @@ void loop()
 
       case 'a':   //Año
       valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
-      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+      valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
       if((anio >= 0) && (anio <=99))
       {
         displayNumAnio(anio,color1);
