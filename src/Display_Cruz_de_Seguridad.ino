@@ -26,6 +26,7 @@
 //#define NUM_PIXELS 369
 #define NUM_PIXELS 229  //cruz
 #define NUM_PIXELS1 84  //dias totales
+<<<<<<< Updated upstream
 #define NUM_PIXELS2 14 //Mes
 #define NUM_PIXELS3 14 //año
 
@@ -33,6 +34,15 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ80
 Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUM_PIXELS1, PIN1, NEO_GRBW + NEO_KHZ800);    //Dias
 Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(NUM_PIXELS2, PIN2, NEO_GRBW + NEO_KHZ800);    // Mes
 Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(NUM_PIXELS3, PIN3, NEO_GRBW + NEO_KHZ800);    // Año
+=======
+#define NUM_PIXELS2 14 //Mes un LED por segmento
+#define NUM_PIXELS3 14 //año un LED por segmento
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ400);
+Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUM_PIXELS1, PIN1, NEO_WGRB + NEO_KHZ400);
+Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(NUM_PIXELS2, PIN2, NEO_GRB + NEO_KHZ400);
+Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(NUM_PIXELS3, PIN3, NEO_GRB + NEO_KHZ400);
+>>>>>>> Stashed changes
 
 const int numPixAnio = 14;
 const int numPixMes = 14;
