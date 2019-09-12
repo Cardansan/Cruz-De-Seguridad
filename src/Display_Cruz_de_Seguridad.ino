@@ -16,6 +16,8 @@
 #include <WebSocketsServer.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
+//#include <Wire.h>
+#include <ESP8266HTTPUpdateServer.h>
 
 #define PIN D1      // cruz
 #define PIN1 D2     // dias totales
@@ -25,6 +27,7 @@
 //#define NUM_PIXELS 369
 #define NUM_PIXELS 229  //cruz
 #define NUM_PIXELS1 84  //dias totales
+<<<<<<< Updated upstream
 #define NUM_PIXELS2 14 //Mes
 #define NUM_PIXELS3 14 //año
 
@@ -32,6 +35,15 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ80
 Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUM_PIXELS1, PIN1, NEO_GRBW + NEO_KHZ800);    //Dias
 Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(NUM_PIXELS2, PIN2, NEO_GRBW + NEO_KHZ800);    // Mes
 Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(NUM_PIXELS3, PIN3, NEO_GRBW + NEO_KHZ800);    // Año
+=======
+#define NUM_PIXELS2 14 //Mes un LED por segmento
+#define NUM_PIXELS3 14 //año un LED por segmento
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_PIXELS, PIN, NEO_GRB + NEO_KHZ400);
+Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUM_PIXELS1, PIN1, NEO_WGRB + NEO_KHZ400);
+Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(NUM_PIXELS2, PIN2, NEO_GRB + NEO_KHZ400);
+Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(NUM_PIXELS3, PIN3, NEO_GRB + NEO_KHZ400);
+>>>>>>> Stashed changes
 
 const int numPixAnio = 14;
 const int numPixMes = 14;
@@ -40,7 +52,8 @@ const int numPixFechas = 229;
 
 ESP8266WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
-//File fsUploadFile;
+ESP8266HTTPUpdateServer httpUpdater;
+File fsUploadFile;
 
 const char WiFiAPPSK[] = "d1spl4y4.0";  //CONTRASEÑA
 const char ssid[] = "Cruz_de_Seguridad"; // NOMBRE DE LA RED
@@ -92,6 +105,49 @@ int segmDiaTotal[]{0,2,7,12,16,21,27,30,37,43,51,55,62,69,75,82,90,95,104,112,12
 
 //Socket.send('Connect ' + new Date());
 //char webpage[] PROGMEM = R"=====()=====";
+// ----------------------------------------------------------------- handleFileUpload
+//funcion para actualizar archivos OTA
+void handleFileUpload()
+{
+  HTTPUpload& upload = server.upload();
+  if(upload.status == UPLOAD_FILE_START)
+  {
+    String filename = upload.filename;
+    if(!filename.startsWith("/"))
+      filename = "/"+filename;
+    Serial.print("handleFileUpload Name: "); Serial.println(filename);
+    fsUploadFile = SPIFFS.open(filename, "w");
+  } else if(upload.status == UPLOAD_FILE_WRITE)
+  {
+    if(fsUploadFile)
+      fsUploadFile.write(upload.buf, upload.currentSize);
+  } else if(upload.status == UPLOAD_FILE_END)
+  {
+    if(fsUploadFile)
+      fsUploadFile.close();
+    Serial.print("handleFileUpload Size: "); Serial.println(upload.totalSize);
+  }
+}
+
+//----------------------------------------------------------------handleFileList
+void handleFileList()
+{
+  String path = "/";
+  // Assuming there are no subdirectories
+  Dir dir = SPIFFS.openDir(path);
+  String output = "[";
+  while(dir.next())
+  {
+    File entry = dir.openFile("r");
+    // Separate by comma if there are multiple files
+    if(output != "[")
+      output += ",";
+    output += String(entry.name()).substring(1);
+    entry.close();
+  }
+  output += "]";
+  server.send(200, "text/plain", output);
+}
 
 // --------------------------------------------------------------------------- handleIndexFile
 void handleIndexFile()
@@ -153,9 +209,9 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if (numbers[unidades] & (1 << 7 - i))
     {
-      strip1.setPixelColor(j ,Wheel(col));
-      strip1.setPixelColor(j+1 , Wheel(col));
-      strip1.setPixelColor(j+2 , Wheel(col));
+      strip1.setPixelColor(j ,NivelAccidente(col));
+      strip1.setPixelColor(j+1 , NivelAccidente(col));
+      strip1.setPixelColor(j+2 , NivelAccidente(col));
     }
     else
     {
@@ -172,9 +228,9 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if ((numbers[decenas] & (1 << 7 - i)) && ((decenas >= 1) || (centenas >= 1) || (millares >= 1))) //el cero no se muestra
     {
-      strip1.setPixelColor(j + 21, Wheel(col));
-      strip1.setPixelColor(j+1 + 21,Wheel(col));
-      strip1.setPixelColor(j+2 + 21,Wheel(col));
+      strip1.setPixelColor(j + 21, NivelAccidente(col));
+      strip1.setPixelColor(j+1 + 21,NivelAccidente(col));
+      strip1.setPixelColor(j+2 + 21,NivelAccidente(col));
     }
     else
     {
@@ -191,9 +247,9 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if ((numbers[centenas] & (1 << 7 - i)) && ((centenas >= 1) || (millares >= 1))) //el cero no se muestra
     {
-      strip1.setPixelColor(j + (21*2),Wheel(col));
-      strip1.setPixelColor(j+1 + (21*2),Wheel(col));
-      strip1.setPixelColor(j+2 + (21*2),Wheel(col));
+      strip1.setPixelColor(j + (21*2),NivelAccidente(col));
+      strip1.setPixelColor(j+1 + (21*2),NivelAccidente(col));
+      strip1.setPixelColor(j+2 + (21*2),NivelAccidente(col));
     }
     else
     {
@@ -209,9 +265,9 @@ void displayNumDiasSinAcc(uint16_t h, uint32_t col) // ARGUMENTOS: Número a mos
   {
     if ((numbers[millares] & (1 << 7 - i)) && (millares >= 1)) // Que sea diferente de cero
       { //Revisa el byte específico del vector y decide si debe encenderlo de algún color o apagarlo
-        strip1.setPixelColor(j + (21 * 3), Wheel(col)); //Le asigna el color o...
-        strip1.setPixelColor(j+1 + (21 * 3), Wheel(col));
-        strip1.setPixelColor(j+2 + (21 * 3), Wheel(col));
+        strip1.setPixelColor(j + (21 * 3), NivelAccidente(col)); //Le asigna el color o...
+        strip1.setPixelColor(j+1 + (21 * 3), NivelAccidente(col));
+        strip1.setPixelColor(j+2 + (21 * 3), NivelAccidente(col));
       }
     else
     {
@@ -231,8 +287,8 @@ void displayNumMes(uint16_t h, uint32_t col)
   uint16_t decenas = (h%100)/ 10;
   uint16_t unidades = (h%100)%10;
 
-  Serial.println(decenas);
-  Serial.println(unidades);
+  //Serial.println(decenas);
+  //Serial.println(unidades);
   //int j = numPixAnio + numPixMes + numPixFechas; //Para la posicion del neopixel.
   int j = 0;  //Para la posicion del neopixel
   int i = 0;
@@ -243,7 +299,7 @@ void displayNumMes(uint16_t h, uint32_t col)
   {
     if (numbersINV[unidades] & (1 << i))//el cero no se muestra
     {
-      strip2.setPixelColor(j, Wheel(col));
+      strip2.setPixelColor(j, NivelAccidente(col));
     }
     else
     {
@@ -257,7 +313,7 @@ void displayNumMes(uint16_t h, uint32_t col)
   {
     if ((numbersINV[decenas] & (1 << i))&& (decenas >= 1))
     {
-      strip2.setPixelColor(j ,Wheel(col));
+      strip2.setPixelColor(j ,NivelAccidente(col));
     }
     else
     {
@@ -285,7 +341,7 @@ void displayNumAnio(uint16_t h, uint32_t col)
   {
     if (numbers[unidades] & (1 << 7 - i))
     {
-      strip3.setPixelColor(j ,Wheel(col));
+      strip3.setPixelColor(j ,NivelAccidente(col));
     }
     else
     {
@@ -300,7 +356,7 @@ void displayNumAnio(uint16_t h, uint32_t col)
   {
     if ((numbers[decenas] & (1 << 7 - i)) && (decenas >= 1))//el cero no se muestra
     {
-      strip3.setPixelColor(j + 7, Wheel(col));
+      strip3.setPixelColor(j + 7, NivelAccidente(col));
     }
     else
     {
@@ -413,6 +469,19 @@ else {
 }
 }
 
+
+/*void receiveEvent(size_t howMany)
+{
+  (void) howMany;
+  while (1 < Wire.available())
+  { // loop through all but the last
+    char c = Wire.read(); // receive byte as a character
+    Serial.print(c);         // print the character
+  }
+  int x = Wire.read();    // receive byte as an integer
+  Serial.println(x);         // print the integer
+}*/
+
 // ######################################################################################
 //----------------------------------------------------- configuraciones
 void setup()
@@ -423,6 +492,10 @@ void setup()
 
   // Se inicializa el puerto serie
   Serial.begin(115200);
+
+  // Se inicializa la comunicacion por I2C  (SDA,SCL,ADD)
+  //Wire.begin(D6,D5,0x08);
+  //Wire.onReceive(receiveEvent); // register event
 
   // Se inician los neopixels
   strip.setBrightness(Brightness);
@@ -453,13 +526,18 @@ void setup()
     Serial.println("\nMDNS responder started");
   }
 
+
   // handle index
   server.on("/",handleIndexFile);
-  /* server.on("/", []()
-  {
-    // send index.html
-    server.send_P(200, "text/html", webpage);
-  });*/
+
+  server.on("/list", handleFileList);
+// Servidor para actualizar los archivos para la pagina web
+  server.on("/web", HTTP_POST, [](){
+  server.send(200, "text/plain", "{\"success\":1}");
+}, handleFileUpload);
+
+  // Servidor para actualizar el programa vía WEB
+  httpUpdater.setup(&server);
 
   server.begin();
   webSocket.begin();
@@ -488,96 +566,91 @@ void loop()
     tecla = Serial.read();  //Lee el primer caracter de la cadena
     switch (tecla)
     {
-      case 'f':   //Fecha
-      //delay(1000);
-      //Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
-      dia = Serial.readStringUntil(',');
-      fechaAccidente = dia.toInt();
-      valColor = Serial.readStringUntil(',');
-      color = valColor.toInt();
-      if((color <= 5) && ((fechaAccidente > 0) && (fechaAccidente <= 31)))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
-      {
-        Serial.print("Fecha: ");
-        Serial.print(fechaAccidente);
-        Serial.print("\t");
-        Serial.print("Color: ");
-        Serial.println(color);
-        displayAccidente(fechaAccidente,color);
-      }
-      else
-      {
-        Serial.println("Nivel o día de accidente incorrecto");
-      }
+      case 'n':   //numero de días
+        //delay(1000);
+        //Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
+        dia = Serial.readStringUntil(',');
+        fechaAccidente = dia.toInt();
+        valColor = Serial.readStringUntil(')');
+        color = valColor.toInt();
+        if((color <= 5) && ((fechaAccidente > 0) && (fechaAccidente <= 31)))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
+        {
+          Serial.print("Fecha: ");
+          Serial.print(fechaAccidente);
+          Serial.print("\t");
+          Serial.print("Color: ");
+          Serial.println(color);
+          displayAccidente(fechaAccidente,color);
+        }
+        else
+        {
+          Serial.println("Nivel o día de accidente incorrecto");
+        }
       break;
 
       case 't':   //Total
+        valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
+        valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
 
-      valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
-      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
+        if((ndiaact >= 0) && (ndiaact <= 9999))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
+        {
+          displayNumDiasSinAcc(ndiaact,color1);
 
-      if((ndiaact >= 0) && (ndiaact <= 9999))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
-      {
-        displayNumDiasSinAcc(ndiaact,color1);
-
-        Serial.print("Dias: ");
-        Serial.print(valDiaActual);
-        Serial.print("\t");
-        Serial.print("Color: ");
-        Serial.println(valColor);
-      }
-      else
-      {
-        Serial.println("Valor de dias fuera de rango");
-      }
+          Serial.print("Dias: ");
+          Serial.print(valDiaActual);
+          Serial.print("\t");
+          Serial.print("Color: ");
+          Serial.println(valColor);
+        }
+        else
+        {
+          Serial.println("Valor de dias fuera de rango");
+        }
       break;
 
       case 'm':   //Mes
-      valMes = Serial.readStringUntil(','); mes = valMes.toInt();
-      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
-      if((mes > 0) && (mes<=12))
-      {
-        displayNumMes(mes,color1);
-        Serial.print("Mes: ");
-        Serial.print(mes);
-        Serial.print("\t");
-        Serial.print("Color: ");
-        Serial.println(color1);
-      }
-      else
-      {
-        Serial.println("Valor de mes fuera de rango");
-      }
-
+        valMes = Serial.readStringUntil(','); mes = valMes.toInt();
+        valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
+        if((mes > 0) && (mes<=12))
+        {
+          displayNumMes(mes,color1);
+          Serial.print("Mes: ");
+          Serial.print(mes);
+          Serial.print("\t");
+          Serial.print("Color: ");
+          Serial.println(color1);
+        }
+        else
+        {
+          Serial.println("Valor de mes fuera de rango");
+        }
       break;
 
-      case 'a':   //Año
-      valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
-      valColor = Serial.readStringUntil(','); color1 = valColor.toInt();
-      if((anio >= 0) && (anio <=99))
-      {
-        displayNumAnio(anio,color1);
-        Serial.print("Anio: ");
-        Serial.print(anio);
-        Serial.print("\t");
-        Serial.print("Color: ");
-        Serial.println(color1);
-      }
-      else
-      {
-        Serial.println("Valor de anio fuera de rango");
-      }
-
+      case 'y':   //Año
+        valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
+        valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
+        if((anio >= 0) && (anio <=99))
+        {
+          displayNumAnio(anio,color1);
+          Serial.print("Anio: ");
+          Serial.print(anio);
+          Serial.print("\t");
+          Serial.print("Color: ");
+          Serial.println(color1);
+        }
+        else
+        {
+          Serial.println("Valor de anio fuera de rango");
+        }
       break;
 
-      case 's':   //Shutdown
-      //delay(1000);
-      Serial.println("Apagando display");
-      apagaPixels();
+      case 'c':   //clear
+        //delay(1000);
+        Serial.println("Apagando display");
+        apagaPixels();
       break;
+    }
+
   }
-
-     //strip1.setPixelColor(strip.numPixels(), 0, 250, 0);
-     //ndiaact++;
-}
 
 }
