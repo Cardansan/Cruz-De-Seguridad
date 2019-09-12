@@ -4,7 +4,8 @@
     "version": "0.0.1",
     "dependencies": {
         "node-red-node-rbe": "0.2.4",
-        "node-red-node-serialport": "0.8.3"
+        "node-red-node-serialport": "0.8.3",
+        "node-red-dashboard": "2.16.2"
     },
     "node-red": {
         "settings": {
