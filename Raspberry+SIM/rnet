@@ -1,6 +1,6 @@
 #imis/internet is the apn for idea connection
-connect "/usr/sbin/chat -v -f /etc/chatscripts/gprs -T imis/internet"
-#connect "/usr/sbin/chat -v -f /etc/chatscripts/gprs -T internet.itelcel.com"
+#connect "/usr/sbin/chat -v -f /etc/chatscripts/gprs -T imis/internet"
+connect "/usr/sbin/chat -v -f /etc/chatscripts/gprs -T internet.itelcel.com"
 
  
 # For Raspberry Pi3 use /dev/ttyS0 as the communication port:
