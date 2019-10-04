@@ -287,8 +287,8 @@ void displayNumMes(uint16_t h, uint32_t col)
   uint16_t decenas = (h%100)/ 10;
   uint16_t unidades = (h%100)%10;
 
-  Serial.println(decenas);
-  Serial.println(unidades);
+  //Serial.println(decenas);
+  //Serial.println(unidades);
   //int j = numPixAnio + numPixMes + numPixFechas; //Para la posicion del neopixel.
   int j = 0;  //Para la posicion del neopixel
   int i = 0;
@@ -566,96 +566,91 @@ void loop()
     tecla = Serial.read();  //Lee el primer caracter de la cadena
     switch (tecla)
     {
-      case 'f':   //Fecha
-      //delay(1000);
-      //Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
-      dia = Serial.readStringUntil(',');
-      fechaAccidente = dia.toInt();
-      valColor = Serial.readStringUntil(')');
-      color = valColor.toInt();
-      if((color <= 5) && ((fechaAccidente > 0) && (fechaAccidente <= 31)))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
-      {
-        Serial.print("Fecha: ");
-        Serial.print(fechaAccidente);
-        Serial.print("\t");
-        Serial.print("Color: ");
-        Serial.println(color);
-        displayAccidente(fechaAccidente,color);
-      }
-      else
-      {
-        Serial.println("Nivel o día de accidente incorrecto");
-      }
+      case 'n':   //numero de días
+        //delay(1000);
+        //Serial.println("Ingrese Dia del Mes y nivel de Accidente (0,1,2,3,4): ");
+        dia = Serial.readStringUntil(',');
+        fechaAccidente = dia.toInt();
+        valColor = Serial.readStringUntil(')');
+        color = valColor.toInt();
+        if((color <= 5) && ((fechaAccidente > 0) && (fechaAccidente <= 31)))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
+        {
+          Serial.print("Fecha: ");
+          Serial.print(fechaAccidente);
+          Serial.print("\t");
+          Serial.print("Color: ");
+          Serial.println(color);
+          displayAccidente(fechaAccidente,color);
+        }
+        else
+        {
+          Serial.println("Nivel o día de accidente incorrecto");
+        }
       break;
 
       case 't':   //Total
+        valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
+        valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
 
-      valDiaActual = Serial.readStringUntil(','); ndiaact = valDiaActual.toInt();
-      valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
+        if((ndiaact >= 0) && (ndiaact <= 9999))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
+        {
+          displayNumDiasSinAcc(ndiaact,color1);
 
-      if((ndiaact >= 0) && (ndiaact <= 9999))  // El argumento de nivel de acciodente (color) no tiene opciones mayores a 5
-      {
-        displayNumDiasSinAcc(ndiaact,color1);
-
-        Serial.print("Dias: ");
-        Serial.print(valDiaActual);
-        Serial.print("\t");
-        Serial.print("Color: ");
-        Serial.println(valColor);
-      }
-      else
-      {
-        Serial.println("Valor de dias fuera de rango");
-      }
+          Serial.print("Dias: ");
+          Serial.print(valDiaActual);
+          Serial.print("\t");
+          Serial.print("Color: ");
+          Serial.println(valColor);
+        }
+        else
+        {
+          Serial.println("Valor de dias fuera de rango");
+        }
       break;
 
       case 'm':   //Mes
-      valMes = Serial.readStringUntil(','); mes = valMes.toInt();
-      valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
-      if((mes > 0) && (mes<=12))
-      {
-        displayNumMes(mes,color1);
-        Serial.print("Mes: ");
-        Serial.print(mes);
-        Serial.print("\t");
-        Serial.print("Color: ");
-        Serial.println(color1);
-      }
-      else
-      {
-        Serial.println("Valor de mes fuera de rango");
-      }
-
+        valMes = Serial.readStringUntil(','); mes = valMes.toInt();
+        valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
+        if((mes > 0) && (mes<=12))
+        {
+          displayNumMes(mes,color1);
+          Serial.print("Mes: ");
+          Serial.print(mes);
+          Serial.print("\t");
+          Serial.print("Color: ");
+          Serial.println(color1);
+        }
+        else
+        {
+          Serial.println("Valor de mes fuera de rango");
+        }
       break;
 
-      case 'a':   //Año
-      valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
-      valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
-      if((anio >= 0) && (anio <=99))
-      {
-        displayNumAnio(anio,color1);
-        Serial.print("Anio: ");
-        Serial.print(anio);
-        Serial.print("\t");
-        Serial.print("Color: ");
-        Serial.println(color1);
-      }
-      else
-      {
-        Serial.println("Valor de anio fuera de rango");
-      }
-
+      case 'y':   //Año
+        valAnio = Serial.readStringUntil(','); anio = valAnio.toInt();
+        valColor = Serial.readStringUntil(')'); color1 = valColor.toInt();
+        if((anio >= 0) && (anio <=99))
+        {
+          displayNumAnio(anio,color1);
+          Serial.print("Anio: ");
+          Serial.print(anio);
+          Serial.print("\t");
+          Serial.print("Color: ");
+          Serial.println(color1);
+        }
+        else
+        {
+          Serial.println("Valor de anio fuera de rango");
+        }
       break;
 
-      case 's':   //Shutdown
-      //delay(1000);
-      Serial.println("Apagando display");
-      apagaPixels();
+      case 'c':   //clear
+        //delay(1000);
+        Serial.println("Apagando display");
+        apagaPixels();
       break;
+    }
+
   }
-
-     //strip1.setPixelColor(strip.numPixels(), 0, 250, 0);
-     //ndiaact++;
-}
 
 }
